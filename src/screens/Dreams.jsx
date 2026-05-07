@@ -5,7 +5,7 @@ import CTButton from '../components/ui/CTButton.jsx'
 import FatSlider from '../components/ui/FatSlider.jsx'
 import Chico from '../components/Chico.jsx'
 
-const BASE_DREAMS = [
+export const BASE_DREAMS = [
   { id: 'boracay',   emoji: '🏝',  label: 'Boracay trip',      target: 45000,
     img: 'linear-gradient(135deg, #7DD3FC 0%, #FED7AA 60%, #FECACA 100%)' },
   { id: 'iphone',    emoji: '📱',  label: 'New phone',          target: 65000,
@@ -37,6 +37,7 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
         position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 201,
         background: p.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
         padding: '12px 20px 24px',
+        boxShadow: '0 -8px 40px rgba(42,31,18,0.18)',
         animation: 'sheet-up .28s cubic-bezier(.2,.8,.3,1)',
         maxHeight: '85%', overflow: 'auto',
         fontFamily: CT_TYPE.sans, color: p.ink,
@@ -44,7 +45,6 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
         <div style={{ width: 36, height: 4, borderRadius: 2, background: p.line, margin: '0 auto 16px' }} />
         <div style={{ fontFamily: CT_TYPE.serif, fontSize: 22, marginBottom: 16 }}>Add your dream</div>
 
-        {/* Emoji picker */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
             Icon
@@ -55,16 +55,17 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
                 width: 38, height: 38, borderRadius: 10, fontSize: 20,
                 border: `1.5px solid ${emoji === e ? p.ink : 'transparent'}`,
                 background: emoji === e ? p.bgCard : 'transparent',
+                boxShadow: emoji === e ? '0 2px 6px rgba(42,31,18,0.12)' : 'none',
                 cursor: 'pointer',
               }}>{e}</button>
             ))}
           </div>
         </div>
 
-        {/* Name */}
         <div style={{
           marginBottom: 14, padding: '12px 14px', borderRadius: 12,
           background: p.bgCard, border: `1px solid ${p.line}`,
+          boxShadow: '0 2px 8px rgba(42,31,18,0.06)',
         }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
             Dream name
@@ -80,10 +81,10 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
           />
         </div>
 
-        {/* Target amount */}
         <div style={{
           marginBottom: 20, padding: '12px 14px', borderRadius: 12,
           background: p.bgCard, border: `1px solid ${p.line}`,
+          boxShadow: '0 2px 8px rgba(42,31,18,0.06)',
         }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
             Goal amount
@@ -109,10 +110,14 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
           }}>Cancel</button>
           <button
             disabled={!label.trim() || !target}
-            onClick={() => label.trim() && target && onSave({ id: 'custom-' + Date.now(), emoji, label: label.trim(), target, img: 'linear-gradient(135deg, #DCD0FF 0%, #F9A8D4 100%)' })}
+            onClick={() => label.trim() && target && onSave({
+              id: 'custom-' + Date.now(), emoji, label: label.trim(), target,
+              img: 'linear-gradient(135deg, #DCD0FF 0%, #F9A8D4 100%)',
+            })}
             style={{
               flex: 2, padding: '13px', borderRadius: 12,
               background: label.trim() && target ? p.ink : p.line,
+              boxShadow: label.trim() && target ? '0 4px 14px rgba(42,31,18,0.22)' : 'none',
               border: 'none', color: p.bg,
               fontSize: 14, fontWeight: 600, cursor: label.trim() && target ? 'pointer' : 'default',
             }}>
@@ -124,37 +129,52 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
   )
 }
 
-export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = [], onBack, onNext, className }) {
-  const [dreams, setDreams] = useState(BASE_DREAMS)
-  const [activeId, setActiveId] = useState('boracay')
-  const [progress, setProgress] = useState({
-    boracay: 0.65, iphone: 0.32, condo: 0.08, japan: 0.18, emergency: 0.42, wedding: 0.05,
+export default function DreamsScreen({
+  palette: p, monthlySavings,
+  activeDreamId, onActiveDreamChange,
+  dreams, onDreamsChange,
+  onBack, onNext, className,
+}) {
+  const [progress, setProgress] = useState(() => {
+    const init = {}
+    dreams.forEach(d => { init[d.id] = 0 })
+    return init
   })
   const [showAdd, setShowAdd] = useState(false)
+  const [editingAmount, setEditingAmount] = useState(false)
+  const [draftAmount, setDraftAmount] = useState('')
 
-  const active = dreams.find(d => d.id === activeId) || dreams[0]
-  const pct = progress[activeId] || 0
+  const active = dreams.find(d => d.id === activeDreamId) || dreams[0]
+  const pct = Math.min(1, progress[activeDreamId] || 0)
+  const isGoalReached = pct >= 1
 
-  // Compute actual saved from savingsLog for display
-  const totalActuallySaved = savingsLog.reduce((s, e) => s + e.amount, 0)
-  const savedTowardActive = Math.min(active.target, totalActuallySaved)
-  const savedPct = active.target > 0 ? savedTowardActive / active.target : 0
+  const savedAmount = Math.round(active.target * pct)
+  const monthsLeft = !isGoalReached && monthlySavings > 0
+    ? Math.ceil((active.target - savedAmount) / monthlySavings)
+    : 0
 
-  // Use slider pct for preview; default to actual progress or savedPct
-  const displayPct = pct
-  const saved = Math.round(active.target * displayPct)
-  const monthsLeft = monthlySavings > 0 ? Math.ceil((active.target - saved) / monthlySavings) : 99
+  const animSaved = useCountTo(savedAmount, 500)
+  const animPct = useCountTo(pct, 500)
 
-  const animSaved = useCountTo(saved, 500)
-  const animPct = useCountTo(displayPct, 500)
+  const blurPx = (1 - Math.min(1, animPct)) * 22
+  const grayscale = (1 - Math.min(1, animPct)) * 80
 
-  const blurPx = (1 - animPct) * 22
-  const grayscale = (1 - animPct) * 80
+  const setActivePct = (v) => {
+    const clamped = Math.min(1, Math.max(0, v))
+    setProgress(prev => ({ ...prev, [activeDreamId]: clamped }))
+  }
+
+  const commitDraftAmount = () => {
+    const raw = Number(draftAmount.replace(/,/g, '').replace(/[^0-9.]/g, '')) || 0
+    const clamped = Math.min(active.target, Math.max(0, raw))
+    setActivePct(active.target > 0 ? clamped / active.target : 0)
+    setEditingAmount(false)
+  }
 
   const addCustomDream = (dream) => {
-    setDreams(prev => [...prev, dream])
-    setProgress(prev => ({ ...prev, [dream.id]: savedPct }))
-    setActiveId(dream.id)
+    onDreamsChange([...dreams, dream])
+    setProgress(prev => ({ ...prev, [dream.id]: 0 }))
+    onActiveDreamChange(dream.id)
     setShowAdd(false)
   }
 
@@ -169,8 +189,8 @@ export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = 
       {/* Hero card */}
       <div style={{ padding: '4px 20px 0' }}>
         <div style={{
-          position: 'relative', height: 210, borderRadius: 18, overflow: 'hidden',
-          border: `1px solid ${p.line}`,
+          position: 'relative', height: 210, borderRadius: 20, overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(42,31,18,0.18)',
         }}>
           <div style={{
             position: 'absolute', inset: -30,
@@ -184,33 +204,41 @@ export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = 
             mixBlendMode: 'overlay',
           }} />
           <div style={{
-            position: 'absolute', left: 0, right: 0, bottom: 0, height: 100,
-            background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.55))',
+            position: 'absolute', left: 0, right: 0, bottom: 0, height: 110,
+            background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.65))',
           }} />
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 72, opacity: Math.max(0.2, 1 - animPct),
+            fontSize: 72, opacity: Math.max(0.15, 1 - animPct),
             transition: 'opacity .5s',
           }}>
             {active.emoji}
           </div>
-          <div style={{ position: 'absolute', left: 14, right: 14, bottom: 12, color: '#fff' }}>
+          <div style={{ position: 'absolute', left: 14, right: 14, bottom: 14, color: '#fff' }}>
             <div style={{ fontFamily: CT_TYPE.serif, fontSize: 24, lineHeight: 1.1 }}>{active.label}</div>
+            <div style={{ fontSize: 12, marginTop: 3, opacity: 0.8 }}>
+              {isGoalReached
+                ? '🎉 Goal reached!'
+                : monthlySavings > 0 ? `~${monthsLeft} month${monthsLeft !== 1 ? 's' : ''} away at current pace` : 'Set your savings rate to see timeline'}
+            </div>
           </div>
           <div style={{
             position: 'absolute', top: 12, right: 12,
             padding: '5px 10px', borderRadius: 999,
-            background: 'rgba(255,255,255,0.92)',
-            fontSize: 13, fontWeight: 600, color: p.ink, fontVariantNumeric: 'tabular-nums',
+            background: isGoalReached ? CT_SEMANTIC.win : 'rgba(255,255,255,0.92)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+            fontSize: 13, fontWeight: 700,
+            color: isGoalReached ? '#fff' : p.ink,
+            fontVariantNumeric: 'tabular-nums',
           }}>
             {Math.round(animPct * 100)}%
           </div>
         </div>
 
         {/* Numbers row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 12 }}>
           <div>
-            <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1 }}>Saved (simulated)</div>
+            <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1 }}>Already saved</div>
             <div style={{ fontFamily: CT_TYPE.serif, fontSize: 22, color: p.ink, fontVariantNumeric: 'tabular-nums' }}>
               ₱{Math.round(animSaved).toLocaleString('en-PH')}
             </div>
@@ -223,16 +251,19 @@ export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = 
           </div>
         </div>
 
-        {/* Countdown */}
+        {/* Chico comment */}
         <div style={{
           marginTop: 10, padding: '10px 12px', borderRadius: 12,
           background: p.bgCard, border: `1px solid ${p.line}`,
+          boxShadow: '0 2px 8px rgba(42,31,18,0.07)',
           display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: p.inkSoft,
         }}>
           <Chico state={pct >= 0.5 ? 'thriving' : 'okay'} size={32} animate={false} />
           <span>
-            At <b style={{ color: p.ink }}>₱{monthlySavings.toLocaleString('en-PH')}/mo</b>, ~
-            <b style={{ color: CT_SEMANTIC.dream }}> {monthsLeft} months</b> to go.
+            {isGoalReached
+              ? <><b style={{ color: CT_SEMANTIC.win }}>Amazing!</b> You've hit this goal. Pick your next dream! 🎉</>
+              : <>At <b style={{ color: p.ink }}>₱{monthlySavings.toLocaleString('en-PH')}/mo</b>, you need <b style={{ color: CT_SEMANTIC.dream }}>{monthsLeft} more month{monthsLeft !== 1 ? 's' : ''}</b>.</>
+            }
           </span>
         </div>
       </div>
@@ -243,15 +274,17 @@ export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = 
       </div>
       <div style={{ display: 'flex', gap: 8, padding: '4px 20px 6px', overflowX: 'auto', scrollbarWidth: 'none' }}>
         {dreams.map(d => {
-          const isActive = d.id === activeId
-          const dpct = progress[d.id] || 0
+          const isActive = d.id === activeDreamId
+          const dpct = Math.min(1, progress[d.id] || 0)
           return (
-            <button key={d.id} onClick={() => setActiveId(d.id)} style={{
+            <button key={d.id} onClick={() => onActiveDreamChange(d.id)} style={{
               flexShrink: 0, width: 100, padding: '10px 10px',
-              borderRadius: 12, border: `1px solid ${isActive ? p.ink : p.line}`,
+              borderRadius: 14, border: `1.5px solid ${isActive ? p.ink : p.line}`,
               background: isActive ? p.ink : p.bgCard,
+              boxShadow: isActive ? '0 4px 16px rgba(42,31,18,0.2)' : '0 2px 8px rgba(42,31,18,0.06)',
               color: isActive ? p.bg : p.ink,
               cursor: 'pointer', textAlign: 'left', fontFamily: CT_TYPE.sans,
+              transition: 'box-shadow .2s, background .2s',
             }}>
               <div style={{ fontSize: 20 }}>{d.emoji}</div>
               <div style={{ fontSize: 11, marginTop: 4, fontWeight: 600, lineHeight: 1.2 }}>{d.label}</div>
@@ -262,9 +295,8 @@ export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = 
           )
         })}
 
-        {/* Add custom dream */}
         <button onClick={() => setShowAdd(true)} style={{
-          flexShrink: 0, width: 72, borderRadius: 12,
+          flexShrink: 0, width: 72, borderRadius: 14,
           border: `1.5px dashed ${p.inkMuted}`,
           background: 'transparent', color: p.inkSoft,
           cursor: 'pointer', display: 'flex', flexDirection: 'column',
@@ -276,19 +308,66 @@ export default function DreamsScreen({ palette: p, monthlySavings, savingsLog = 
         </button>
       </div>
 
-      {/* Progress slider with clear hint */}
+      {/* Progress slider + editable amount */}
       <div style={{ padding: '8px 20px 0' }}>
-        <div style={{ fontSize: 12, color: p.inkSoft, marginBottom: 4 }}>
+        <div style={{ fontSize: 12, color: p.inkSoft, marginBottom: 6 }}>
           How much have you already saved toward this dream?
-          {' '}
-          <span style={{ fontWeight: 600, color: p.ink, fontVariantNumeric: 'tabular-nums' }}>
-            ₱{Math.round(active.target * pct).toLocaleString('en-PH')}
+        </div>
+
+        {/* Editable amount row */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
+          padding: '10px 14px', borderRadius: 12,
+          background: p.bgCard, border: `1.5px solid ${isGoalReached ? CT_SEMANTIC.win : p.line}`,
+          boxShadow: isGoalReached
+            ? `0 0 0 3px ${CT_SEMANTIC.winSoft}, 0 2px 10px rgba(34,160,107,0.15)`
+            : '0 2px 8px rgba(42,31,18,0.06)',
+          transition: 'box-shadow .3s, border-color .3s',
+        }}>
+          <span style={{ fontFamily: CT_TYPE.serif, fontSize: 20, color: p.inkSoft }}>₱</span>
+          {editingAmount ? (
+            <input
+              autoFocus
+              type="number"
+              value={draftAmount}
+              onChange={e => setDraftAmount(e.target.value)}
+              onBlur={commitDraftAmount}
+              onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
+              min={0} max={active.target}
+              style={{
+                flex: 1, border: 'none', background: 'transparent', outline: 'none',
+                fontSize: 24, fontFamily: CT_TYPE.serif, color: p.ink, padding: 0,
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => { setEditingAmount(true); setDraftAmount(String(savedAmount)) }}
+              style={{
+                flex: 1, fontSize: 24, fontFamily: CT_TYPE.serif, color: p.ink,
+                fontVariantNumeric: 'tabular-nums', cursor: 'text',
+              }}>
+              {savedAmount.toLocaleString('en-PH')}
+            </div>
+          )}
+          <span style={{ fontSize: 12, color: isGoalReached ? CT_SEMANTIC.win : p.inkMuted, fontWeight: 600 }}>
+            {isGoalReached ? '🎉 Goal reached!' : `of ₱${active.target.toLocaleString('en-PH')}`}
           </span>
         </div>
-        <FatSlider
-          value={pct} max={1}
-          onChange={(v) => setProgress(prev => ({ ...prev, [activeId]: v }))}
-          state={pct >= 0.5 ? 'thriving' : 'okay'} p={p} />
+
+        {isGoalReached ? (
+          <div style={{
+            padding: '12px 14px', borderRadius: 12, textAlign: 'center',
+            background: CT_SEMANTIC.winSoft, border: `1px solid ${CT_SEMANTIC.win}`,
+            fontSize: 13, color: CT_SEMANTIC.win, fontWeight: 600,
+          }}>
+            You've fully saved for this dream! 🎉 Pick another dream or set a new one.
+          </div>
+        ) : (
+          <FatSlider
+            value={pct} max={1}
+            onChange={setActivePct}
+            state={pct >= 0.5 ? 'thriving' : 'okay'} p={p} />
+        )}
       </div>
 
       <div style={{ flex: 1 }} />

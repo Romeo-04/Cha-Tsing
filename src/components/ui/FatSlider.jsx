@@ -42,6 +42,7 @@ export default function FatSlider({ value, onChange, state, p, max = 0.6 }) {
       <div style={{
         position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)',
         height: 14, borderRadius: 999, background: p.line,
+        boxShadow: 'inset 0 1px 4px rgba(42,31,18,0.12)',
       }} />
       <div style={{
         position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
@@ -53,7 +54,8 @@ export default function FatSlider({ value, onChange, state, p, max = 0.6 }) {
         transform: 'translate(-50%, -50%)',
         width: 32, height: 32, borderRadius: '50%', background: '#fff',
         border: `3px solid ${fillColor}`,
-        transition: dragging ? 'none' : 'border-color .25s',
+        boxShadow: `0 4px 12px rgba(42,31,18,0.2), 0 0 0 4px ${fillColor}22`,
+        transition: dragging ? 'none' : 'border-color .25s, box-shadow .25s',
       }} />
     </div>
   )

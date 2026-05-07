@@ -2,13 +2,6 @@ import { useState } from 'react'
 import { CT_TYPE, CT_SEMANTIC, useCountTo } from '../tokens.js'
 import Chico, { chicoStateFromSavings, chicoLine } from '../components/Chico.jsx'
 
-const DREAM_TARGETS = [
-  { id: 'boracay',   emoji: '🏝',  label: 'Boracay trip',      target: 45000 },
-  { id: 'iphone',    emoji: '📱',  label: 'New phone',          target: 65000 },
-  { id: 'emergency', emoji: '🛟',  label: 'Emergency fund',     target: 180000 },
-  { id: 'japan',     emoji: '⛩',  label: 'Japan trip',         target: 120000 },
-]
-
 function greeting(name) {
   const h = new Date().getHours()
   const part = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'
@@ -40,16 +33,17 @@ function AddSavingsSheet({ palette: p, onSave, onCancel }) {
         position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 201,
         background: p.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
         padding: '12px 20px 28px',
+        boxShadow: '0 -8px 40px rgba(42,31,18,0.2)',
         animation: 'sheet-up .28s cubic-bezier(.2,.8,.3,1)',
         fontFamily: CT_TYPE.sans, color: p.ink,
       }}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: p.line, margin: '0 auto 16px' }} />
         <div style={{ fontFamily: CT_TYPE.serif, fontSize: 24, marginBottom: 16 }}>Log a saving</div>
 
-        {/* Amount */}
         <div style={{
           marginBottom: 12, padding: '14px 16px', borderRadius: 14,
           background: p.bgCard, border: `1px solid ${p.line}`,
+          boxShadow: '0 2px 8px rgba(42,31,18,0.07)',
         }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
             Amount saved
@@ -68,10 +62,10 @@ function AddSavingsSheet({ palette: p, onSave, onCancel }) {
           </div>
         </div>
 
-        {/* Note */}
         <div style={{
           marginBottom: 12, padding: '12px 16px', borderRadius: 14,
           background: p.bgCard, border: `1px solid ${p.line}`,
+          boxShadow: '0 2px 8px rgba(42,31,18,0.07)',
         }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
             Note (optional)
@@ -86,10 +80,10 @@ function AddSavingsSheet({ palette: p, onSave, onCancel }) {
           />
         </div>
 
-        {/* Date */}
         <div style={{
           marginBottom: 20, padding: '12px 16px', borderRadius: 14,
           background: p.bgCard, border: `1px solid ${p.line}`,
+          boxShadow: '0 2px 8px rgba(42,31,18,0.07)',
         }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
             Date
@@ -120,6 +114,7 @@ function AddSavingsSheet({ palette: p, onSave, onCancel }) {
             style={{
               flex: 2, padding: '14px', borderRadius: 12,
               background: valid ? CT_SEMANTIC.win : p.line,
+              boxShadow: valid ? '0 4px 16px rgba(34,160,107,0.3)' : 'none',
               border: 'none', color: '#fff',
               fontSize: 14, fontWeight: 600, cursor: valid ? 'pointer' : 'default',
             }}>
@@ -134,12 +129,12 @@ function AddSavingsSheet({ palette: p, onSave, onCancel }) {
 export default function FeedChicoScreen({
   palette: p, name, income, savingsPct, monthly,
   savingsLog = [],
+  activeDreamId, dreams = [],
   onAddEntry, onRemoveEntry,
   onGoSlider, onGoDreams, onGoCoach,
   className,
 }) {
   const [showAdd, setShowAdd] = useState(false)
-  const [activeDreamId, setActiveDreamId] = useState(DREAM_TARGETS[0].id)
 
   const totalSaved = savingsLog.reduce((s, e) => s + e.amount, 0)
   const animTotal = useCountTo(totalSaved, 600)
@@ -150,9 +145,13 @@ export default function FeedChicoScreen({
   const chicoState = chicoStateFromSavings(chicoPct)
   const line = chicoLine(chicoState, 0)
 
-  const activeDream = DREAM_TARGETS.find(d => d.id === activeDreamId) || DREAM_TARGETS[0]
-  const dreamProgress = activeDream.target > 0 ? Math.min(1, totalSaved / activeDream.target) : 0
-  const monthsLeft = monthly > 0 && totalSaved < activeDream.target
+  // Active dream from the dreams screen
+  const activeDream = dreams.find(d => d.id === activeDreamId) || dreams[0]
+  const dreamProgress = activeDream && activeDream.target > 0
+    ? Math.min(1, totalSaved / activeDream.target)
+    : 0
+  const isGoalReached = dreamProgress >= 1
+  const monthsLeft = activeDream && monthly > 0 && !isGoalReached
     ? Math.ceil((activeDream.target - totalSaved) / monthly)
     : 0
 
@@ -170,9 +169,11 @@ export default function FeedChicoScreen({
       position: 'relative',
     }}>
 
-      {/* Header */}
+      {/* Header with warm gradient accent */}
       <div style={{
-        padding: '16px 20px 8px',
+        padding: '16px 20px 14px',
+        background: `linear-gradient(180deg, ${p.bgCard} 0%, ${p.bg} 100%)`,
+        borderBottom: `1px solid ${p.line}`,
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
       }}>
         <div>
@@ -182,7 +183,9 @@ export default function FeedChicoScreen({
           <div style={{ fontSize: 12, color: p.inkMuted, marginTop: 3 }}>{today}</div>
         </div>
         <div style={{
-          width: 38, height: 38, borderRadius: 12, background: CT_SEMANTIC.amber,
+          width: 38, height: 38, borderRadius: 12,
+          background: 'linear-gradient(135deg, #C9854A, #E8A05A)',
+          boxShadow: '0 4px 12px rgba(201,133,74,0.4)',
           color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: CT_TYPE.serif, fontSize: 20, fontWeight: 600, flexShrink: 0,
         }}>C</div>
@@ -191,11 +194,12 @@ export default function FeedChicoScreen({
       <div style={{ flex: 1, overflow: 'auto', padding: '0 20px' }}>
 
         {/* Chico + speech */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 16, marginBottom: 16 }}>
           <Chico state={chicoState} size={110} />
           <div style={{
             flex: 1, padding: '12px 14px', borderRadius: 14,
             background: p.bgCard, border: `1px solid ${p.line}`,
+            boxShadow: '0 3px 12px rgba(42,31,18,0.08)',
             fontSize: 14, color: p.ink, fontStyle: 'italic', lineHeight: 1.4,
             position: 'relative',
           }}>
@@ -210,8 +214,11 @@ export default function FeedChicoScreen({
 
         {/* Total saved card */}
         <div style={{
-          padding: '16px', borderRadius: 14, background: p.bgCard,
-          border: `1px solid ${p.line}`, marginBottom: 12,
+          padding: '16px', borderRadius: 18,
+          background: `linear-gradient(135deg, ${p.bgCard} 0%, #FFF3E0 100%)`,
+          border: `1px solid ${p.line}`,
+          boxShadow: '0 4px 20px rgba(42,31,18,0.1)',
+          marginBottom: 12,
         }}>
           <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
             Total saved
@@ -223,42 +230,58 @@ export default function FeedChicoScreen({
             ₱{Math.round(animTotal).toLocaleString('en-PH')}
           </div>
 
-          {/* Dream progress */}
-          <div style={{ marginTop: 14, borderTop: `1px dashed ${p.line}`, paddingTop: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
-                {DREAM_TARGETS.map(d => (
-                  <button key={d.id} onClick={() => setActiveDreamId(d.id)} style={{
-                    flexShrink: 0, fontSize: 18, width: 32, height: 32, borderRadius: 8,
-                    border: `1px solid ${activeDreamId === d.id ? p.ink : p.line}`,
-                    background: activeDreamId === d.id ? p.ink : 'transparent',
-                    cursor: 'pointer',
-                  }}>{d.emoji}</button>
-                ))}
+          {/* Dream progress - active dream only */}
+          {activeDream && (
+            <div style={{ marginTop: 14, borderTop: `1px dashed ${p.line}`, paddingTop: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 22 }}>{activeDream.emoji}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: p.ink }}>{activeDream.label}</div>
+                  <div style={{ fontSize: 11, color: p.inkMuted }}>
+                    Goal: ₱{activeDream.target.toLocaleString('en-PH')}
+                  </div>
+                </div>
+                <button onClick={onGoDreams} style={{
+                  padding: '4px 10px', borderRadius: 999,
+                  border: `1px solid ${p.line}`, background: 'transparent',
+                  color: p.inkSoft, fontSize: 10, cursor: 'pointer', whiteSpace: 'nowrap',
+                }}>Change →</button>
               </div>
-              <span style={{ fontSize: 12, color: p.inkSoft, whiteSpace: 'nowrap' }}>
-                {activeDream.label}
-              </span>
+
+              {/* Progress bar */}
+              <div style={{ height: 10, borderRadius: 5, background: p.line, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${Math.min(100, dreamProgress * 100)}%`,
+                  background: isGoalReached
+                    ? `linear-gradient(90deg, ${CT_SEMANTIC.win}, #34D399)`
+                    : `linear-gradient(90deg, ${CT_SEMANTIC.dream}, #9B6FFF)`,
+                  borderRadius: 5,
+                  transition: 'width .8s cubic-bezier(.2,.8,.3,1)',
+                  boxShadow: isGoalReached
+                    ? '0 0 8px rgba(34,160,107,0.5)'
+                    : '0 0 8px rgba(124,77,255,0.4)',
+                }} />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 7 }}>
+                <span style={{
+                  fontSize: 11,
+                  color: isGoalReached ? CT_SEMANTIC.win : CT_SEMANTIC.dream,
+                  fontWeight: 700,
+                }}>
+                  {Math.round(dreamProgress * 100)}% of ₱{activeDream.target.toLocaleString('en-PH')}
+                </span>
+                <span style={{ fontSize: 11, color: p.inkMuted }}>
+                  {isGoalReached
+                    ? '🎉 Reached!'
+                    : monthsLeft > 0
+                      ? `~${monthsLeft} month${monthsLeft !== 1 ? 's' : ''} left`
+                      : monthly === 0 ? 'Set your savings rate' : '—'}
+                </span>
+              </div>
             </div>
-            {/* Progress bar */}
-            <div style={{ height: 8, borderRadius: 4, background: p.line, overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${Math.min(100, dreamProgress * 100)}%`,
-                background: CT_SEMANTIC.dream,
-                borderRadius: 4,
-                transition: 'width .6s ease',
-              }} />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-              <span style={{ fontSize: 11, color: CT_SEMANTIC.dream, fontWeight: 600 }}>
-                {Math.round(dreamProgress * 100)}% of ₱{activeDream.target.toLocaleString('en-PH')}
-              </span>
-              <span style={{ fontSize: 11, color: p.inkMuted }}>
-                {monthsLeft > 0 ? `~${monthsLeft} months left` : totalSaved >= activeDream.target ? '🎉 Reached!' : '—'}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Savings log */}
@@ -282,10 +305,12 @@ export default function FeedChicoScreen({
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '12px 14px', borderRadius: 12,
                   background: p.bgCard, border: `1px solid ${p.line}`,
+                  boxShadow: '0 2px 8px rgba(42,31,18,0.06)',
                 }}>
                   <div style={{
                     width: 36, height: 36, borderRadius: 10,
                     background: CT_SEMANTIC.winSoft,
+                    boxShadow: '0 2px 6px rgba(34,160,107,0.2)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 16, flexShrink: 0,
                   }}>💰</div>
@@ -312,13 +337,18 @@ export default function FeedChicoScreen({
       </div>
 
       {/* Bottom actions */}
-      <div style={{ padding: '10px 20px 16px', borderTop: `1px solid ${p.line}` }}>
-        {/* Log savings CTA */}
+      <div style={{
+        padding: '10px 20px 16px',
+        borderTop: `1px solid ${p.line}`,
+        background: `linear-gradient(180deg, ${p.bg} 0%, ${p.bgCard} 100%)`,
+      }}>
         <button onClick={() => setShowAdd(true)} style={{
-          width: '100%', padding: '15px', borderRadius: 12,
-          background: CT_SEMANTIC.win, border: 'none', color: '#fff',
-          fontSize: 16, fontWeight: 600, cursor: 'pointer', marginBottom: 10,
-          fontFamily: CT_TYPE.sans,
+          width: '100%', padding: '15px', borderRadius: 14,
+          background: `linear-gradient(135deg, ${CT_SEMANTIC.win}, #1a9060)`,
+          boxShadow: '0 6px 20px rgba(34,160,107,0.35)',
+          border: 'none', color: '#fff',
+          fontSize: 16, fontWeight: 700, cursor: 'pointer', marginBottom: 10,
+          fontFamily: CT_TYPE.sans, letterSpacing: 0.2,
         }}>
           + Log savings
         </button>
@@ -326,8 +356,9 @@ export default function FeedChicoScreen({
         {/* Nav row */}
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onGoSlider} style={{
-            flex: 1, padding: '11px 6px', borderRadius: 10,
-            background: 'transparent', border: `1px solid ${p.line}`,
+            flex: 1, padding: '11px 6px', borderRadius: 12,
+            background: p.bgCard, border: `1px solid ${p.line}`,
+            boxShadow: '0 2px 6px rgba(42,31,18,0.08)',
             color: p.inkSoft, fontSize: 12, cursor: 'pointer', fontFamily: CT_TYPE.sans,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
           }}>
@@ -335,8 +366,9 @@ export default function FeedChicoScreen({
             <span>Savings</span>
           </button>
           <button onClick={onGoDreams} style={{
-            flex: 1, padding: '11px 6px', borderRadius: 10,
-            background: 'transparent', border: `1px solid ${p.line}`,
+            flex: 1, padding: '11px 6px', borderRadius: 12,
+            background: p.bgCard, border: `1px solid ${p.line}`,
+            boxShadow: '0 2px 6px rgba(42,31,18,0.08)',
             color: p.inkSoft, fontSize: 12, cursor: 'pointer', fontFamily: CT_TYPE.sans,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
           }}>
@@ -344,8 +376,9 @@ export default function FeedChicoScreen({
             <span>Dreams</span>
           </button>
           <button onClick={onGoCoach} style={{
-            flex: 1, padding: '11px 6px', borderRadius: 10,
-            background: 'transparent', border: `1px solid ${p.line}`,
+            flex: 1, padding: '11px 6px', borderRadius: 12,
+            background: p.bgCard, border: `1px solid ${p.line}`,
+            boxShadow: '0 2px 6px rgba(42,31,18,0.08)',
             color: p.inkSoft, fontSize: 12, cursor: 'pointer', fontFamily: CT_TYPE.sans,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
           }}>

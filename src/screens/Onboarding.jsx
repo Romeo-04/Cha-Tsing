@@ -27,9 +27,9 @@ export default function OnboardingScreen({ palette: p, income, name, onNameChang
       {/* Chico — fixed height container so it never overflows */}
       <div style={{
         display: 'flex', justifyContent: 'center', alignItems: 'center',
-        height: 160, flexShrink: 0,
+        height: 160, flexShrink: 0, marginTop: 150, marginBottom: 25,
       }}>
-        <Chico state={step === 0 ? 'thriving' : 'okay'} size={130} />
+        <Chico state={step === 0 ? 'thriving' : 'okay'} size={180} />
       </div>
 
       {step === 0 && (
@@ -44,6 +44,7 @@ export default function OnboardingScreen({ palette: p, income, name, onNameChang
           <div style={{
             marginTop: 24, padding: '16px',
             background: p.bgCard, borderRadius: 14, border: `1px solid ${p.line}`,
+            boxShadow: '0 4px 16px rgba(42,31,18,0.08)',
           }}>
             <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
               What should I call you?
@@ -66,7 +67,7 @@ export default function OnboardingScreen({ palette: p, income, name, onNameChang
           <div style={{ flex: 1 }} />
           <CTButton palette={p}
             onClick={() => draftName.trim() && setStep(1)}
-            label={draftName.trim() ? `Nice to meet you, ${draftName.trim()} →` : 'Nice to meet you →'} />
+            label={draftName.trim() ? `Nice to meet you, ${draftName.trim()}` : 'Nice to meet you'} />
           <div style={{ height: 20 }} />
         </div>
       )}
@@ -83,6 +84,7 @@ export default function OnboardingScreen({ palette: p, income, name, onNameChang
           <div style={{
             marginTop: 20, padding: '16px',
             background: p.bgCard, borderRadius: 14, border: `1px solid ${p.line}`,
+            boxShadow: '0 4px 16px rgba(42,31,18,0.08)',
           }}>
             <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
               Gross monthly income

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { CT_PALETTES } from './tokens.js'
 import OnboardingScreen from './screens/Onboarding.jsx'
 import SavingsSliderScreen from './screens/Slider.jsx'
-import DreamsScreen from './screens/Dreams.jsx'
+import DreamsScreen, { BASE_DREAMS } from './screens/Dreams.jsx'
 import InsightsScreen from './screens/Insights.jsx'
 import CoachScreen from './screens/Coach.jsx'
 import FeedChicoScreen from './screens/FeedChico.jsx'
@@ -25,21 +25,26 @@ export default function App() {
   const [savingsPct, setSavingsPctState] = useState(() => load('ct_savings_pct', 0.18))
   const [allocations, setAllocations] = useState(() => load('ct_allocations', []))
   const [savingsLog, setSavingsLog] = useState(() => load('ct_savings_log', []))
+  const [activeDreamId, setActiveDreamIdState] = useState(() => load('ct_active_dream_id', 'boracay'))
+  const [dreams, setDreamsState] = useState(() => load('ct_dreams', BASE_DREAMS))
   const [screen, setScreen] = useState(() => load('ct_name', '') ? 'feed' : 'onboarding')
   const [direction, setDirection] = useState('forward')
 
   const palette = CT_PALETTES['cream']
 
-  // Persist state to localStorage
   useEffect(() => { localStorage.setItem('ct_name', JSON.stringify(name)) }, [name])
   useEffect(() => { localStorage.setItem('ct_income', JSON.stringify(income)) }, [income])
   useEffect(() => { localStorage.setItem('ct_savings_pct', JSON.stringify(savingsPct)) }, [savingsPct])
   useEffect(() => { localStorage.setItem('ct_allocations', JSON.stringify(allocations)) }, [allocations])
   useEffect(() => { localStorage.setItem('ct_savings_log', JSON.stringify(savingsLog)) }, [savingsLog])
+  useEffect(() => { localStorage.setItem('ct_active_dream_id', JSON.stringify(activeDreamId)) }, [activeDreamId])
+  useEffect(() => { localStorage.setItem('ct_dreams', JSON.stringify(dreams)) }, [dreams])
 
   const setName = (n) => setNameState(n)
   const setIncome = (v) => setIncomeState(v)
   const setSavingsPct = (v) => setSavingsPctState(v)
+  const setActiveDreamId = (id) => setActiveDreamIdState(id)
+  const setDreams = (d) => setDreamsState(d)
 
   const navigate = (to) => {
     const from = SCREEN_ORDER.indexOf(screen)
@@ -86,7 +91,10 @@ export default function App() {
     content = (
       <DreamsScreen key="dreams" className={cls}
         palette={palette} monthlySavings={monthly}
-        savingsLog={savingsLog}
+        activeDreamId={activeDreamId}
+        onActiveDreamChange={setActiveDreamId}
+        dreams={dreams}
+        onDreamsChange={setDreams}
         onBack={() => navigate('slider')}
         onNext={() => navigate('insights')} />
     )
@@ -113,6 +121,8 @@ export default function App() {
         palette={palette} name={name} income={income}
         savingsPct={savingsPct} monthly={monthly}
         savingsLog={savingsLog}
+        activeDreamId={activeDreamId}
+        dreams={dreams}
         onAddEntry={addSavingsEntry}
         onRemoveEntry={removeSavingsEntry}
         onGoSlider={() => navigate('slider')}
