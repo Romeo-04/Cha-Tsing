@@ -1,0 +1,124 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  height: 100%;
+  height: 100dvh;
+}
+
+body {
+  height: 100%;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  background: #1a140e;
+}
+
+#root {
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Phone frame on desktop */
+.app-frame {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 431px) {
+  .app-frame {
+    max-height: 932px;
+    border-radius: 40px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+}
+
+/* Screen transitions */
+@keyframes screen-in {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes screen-in-back {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.screen-enter      { animation: screen-in      .28s cubic-bezier(.2, .8, .3, 1) both; }
+.screen-enter-back { animation: screen-in-back .28s cubic-bezier(.2, .8, .3, 1) both; }
+
+/* Chico animations (global because SVG animations can't be component-scoped easily) */
+@keyframes chico-bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-4px) rotate(1deg); }
+}
+@keyframes chico-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%, 97%      { transform: scaleY(0.05); }
+}
+@keyframes chico-money-rain {
+  0%   { transform: translateY(-20px) rotate(-15deg); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(140px) rotate(25deg); opacity: 0; }
+}
+@keyframes chico-tear {
+  0%   { transform: translateY(0); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateY(40px); opacity: 0; }
+}
+@keyframes chico-sweat {
+  0%   { transform: translate(0,0) scale(0.5); opacity: 0; }
+  30%  { opacity: 1; transform: translate(0,0) scale(1); }
+  100% { transform: translate(4px,30px) scale(0.8); opacity: 0; }
+}
+@keyframes chico-sparkle {
+  0%, 100% { transform: scale(0); opacity: 0; }
+  50%      { transform: scale(1); opacity: 1; }
+}
+@keyframes chico-munch {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  50%      { transform: scaleY(0.4) scaleX(1.1); }
+}
+@keyframes chico-reach {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+@keyframes chico-crumb {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--cx, 30px), 40px) rotate(180deg); opacity: 0; }
+}
+.chico-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chico-blink 4s ease-in-out infinite;
+}
+@keyframes bubble-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-3px) rotate(2deg); }
+}
+@keyframes flash-up {
+  0%   { transform: translate(-50%, 0)     scale(0.4); opacity: 0; }
+  20%  { transform: translate(-50%, -30px) scale(1.1); opacity: 1; }
+  70%  { transform: translate(-50%, -38px) scale(1);   opacity: 1; }
+  100% { transform: translate(-50%, -60px) scale(0.9); opacity: 0; }
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); opacity: 0.6; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes scrim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes chico-chomp {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12, 0.92); }
+  70%  { transform: scale(0.96, 1.05); }
+  100% { transform: scale(1); }
+}
