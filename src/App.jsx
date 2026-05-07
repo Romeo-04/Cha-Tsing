@@ -22,7 +22,7 @@ function StatusBar({ palette: p }) {
   const isDark = p.bg.startsWith('#1') || p.bg.startsWith('#2')
   const c = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(42,31,18,0.75)'
   return (
-    <div style={{
+    <div className="status-bar" style={{
       height: 44, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
       padding: '0 24px 8px', position: 'relative', zIndex: 10, flexShrink: 0,
       fontSize: 12, fontWeight: 600, letterSpacing: 0.2, color: c,
