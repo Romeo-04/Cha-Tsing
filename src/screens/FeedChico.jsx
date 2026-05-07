@@ -189,7 +189,104 @@ function AddSpendingSheet({ palette: p, allocations = [], onSave, onCancel }) {
   )
 }
 
-function SettingsSheet({ palette: p, themeKey, onThemeChange, fontChoice, onFontChange, onGoIncomeSetup, onClose }) {
+function ResetConfirmSheet({ palette: p, step, totalSaved, onNext, onCancel }) {
+  const STEPS = [
+    {
+      state: 'okay',
+      title: 'Remove all bananas?',
+      body: 'This will permanently wipe your savings log, spending history, dreams, allocations, and all progress. Every last banana — gone forever.',
+      quote: "I mean… are you sure you've thought this through?",
+      confirm: 'Yes, remove everything',
+      cancel: 'Never mind',
+    },
+    {
+      state: 'stressed',
+      title: "You're really doing this?",
+      body: `Your ₱${totalSaved.toLocaleString('en-PH')} in savings, your dreams, your whole financial journey with me — wiped. All of it.`,
+      quote: "I'm not crying. You're crying. Please don't do this to us.",
+      confirm: "I'm sure. Do it.",
+      cancel: 'Actually… wait',
+    },
+    {
+      state: 'shocked',
+      title: 'LAST CHANCE.',
+      body: 'For the record: this is NOT Chico\'s fault. I warned you. Three times. Chico accepts zero liability for any banana-related losses or emotional damage.',
+      quote: "...fine. But don't come crying to me when you regret this. Not my fault. Not. My. Fault.",
+      confirm: '🍌 Goodbye, bananas',
+      cancel: 'I changed my mind',
+    },
+  ]
+
+  const s = STEPS[step - 1]
+
+  return (
+    <>
+      <div onClick={onCancel} style={{
+        position: 'absolute', inset: 0, background: 'rgba(20,15,8,0.65)',
+        zIndex: 300, backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+      }} />
+      <div style={{
+        position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 301,
+        background: p.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28,
+        padding: '12px 24px 32px',
+        boxShadow: '0 -8px 40px rgba(42,31,18,0.3)',
+        animation: 'sheet-up .28s cubic-bezier(.2,.8,.3,1)',
+        fontFamily: CT_TYPE.sans, color: p.ink,
+      }}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: p.line, margin: '0 auto 18px' }} />
+
+        {/* Step dots */}
+        <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 20 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{
+              height: 8, borderRadius: 4,
+              width: i === step ? 24 : 8,
+              background: i <= step ? CT_SEMANTIC.danger : p.line,
+              transition: 'all .3s',
+            }} />
+          ))}
+        </div>
+
+        {/* Chico pleading */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 }}>
+          <Chico state={s.state} size={130} />
+          <div style={{
+            marginTop: 10, padding: '10px 16px', borderRadius: 14,
+            background: p.bgCard, border: `1px solid ${p.line}`,
+            fontSize: 13, fontStyle: 'italic', color: p.ink,
+            maxWidth: 290, textAlign: 'center', lineHeight: 1.45,
+          }}>
+            "{s.quote}"
+          </div>
+        </div>
+
+        <div style={{ fontFamily: CT_TYPE.serif, fontSize: 24, textAlign: 'center', marginBottom: 8, color: p.ink }}>
+          {s.title}
+        </div>
+        <div style={{ fontSize: 13, color: p.inkSoft, textAlign: 'center', lineHeight: 1.6, marginBottom: 24 }}>
+          {s.body}
+        </div>
+
+        <button onClick={onNext} style={{
+          width: '100%', padding: '15px', borderRadius: 14, marginBottom: 10,
+          background: CT_SEMANTIC.danger, border: 'none', color: '#fff',
+          fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: CT_TYPE.sans,
+        }}>
+          {s.confirm}
+        </button>
+        <button onClick={onCancel} style={{
+          width: '100%', padding: '14px', borderRadius: 14,
+          background: 'transparent', border: `1px solid ${p.line}`,
+          color: p.ink, fontSize: 14, cursor: 'pointer', fontFamily: CT_TYPE.sans,
+        }}>
+          {s.cancel}
+        </button>
+      </div>
+    </>
+  )
+}
+
+function SettingsSheet({ palette: p, themeKey, onThemeChange, fontChoice, onFontChange, onGoIncomeSetup, onReset, onClose }) {
   const isDark = themeKey === 'midnight'
 
   const toggleDark = () => {
@@ -298,7 +395,7 @@ function SettingsSheet({ palette: p, themeKey, onThemeChange, fontChoice, onFont
         <div style={{ fontSize: 11, color: p.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
           Font
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
           {fonts.map(([key, f]) => {
             const active = fontChoice === key
             return (
@@ -318,6 +415,24 @@ function SettingsSheet({ palette: p, themeKey, onThemeChange, fontChoice, onFont
             )
           })}
         </div>
+
+        {/* Danger zone */}
+        <div style={{ fontSize: 11, color: CT_SEMANTIC.danger, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, opacity: 0.7 }}>
+          Danger zone
+        </div>
+        <button onClick={() => { onClose(); onReset() }} style={{
+          width: '100%', padding: '14px 16px', borderRadius: 14,
+          background: `${CT_SEMANTIC.danger}12`,
+          border: `1px solid ${CT_SEMANTIC.danger}44`,
+          display: 'flex', alignItems: 'center', gap: 12,
+          cursor: 'pointer', fontFamily: CT_TYPE.sans, textAlign: 'left',
+        }}>
+          <span style={{ fontSize: 20 }}>🍌</span>
+          <div>
+            <div style={{ fontWeight: 600, color: CT_SEMANTIC.danger, fontSize: 14 }}>Remove all bananas</div>
+            <div style={{ fontSize: 11, color: p.inkMuted, marginTop: 2 }}>Reset everything back to zero</div>
+          </div>
+        </button>
       </div>
     </>
   )
@@ -338,6 +453,16 @@ export default function FeedChicoScreen({
   const [showAdd, setShowAdd] = useState(false)
   const [showSpend, setShowSpend] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [resetStep, setResetStep] = useState(0)
+
+  const handleResetNext = () => {
+    if (resetStep >= 3) {
+      localStorage.clear()
+      window.location.reload()
+    } else {
+      setResetStep(s => s + 1)
+    }
+  }
 
   const totalSaved = savingsLog.reduce((s, e) => s + e.amount, 0)
   const animTotal = useCountTo(totalSaved, 600)
@@ -637,7 +762,16 @@ export default function FeedChicoScreen({
           themeKey={themeKey} onThemeChange={onThemeChange}
           fontChoice={fontChoice} onFontChange={onFontChange}
           onGoIncomeSetup={onGoIncomeSetup}
+          onReset={() => setResetStep(1)}
           onClose={() => setShowSettings(false)} />
+      )}
+      {resetStep > 0 && (
+        <ResetConfirmSheet
+          palette={p}
+          step={resetStep}
+          totalSaved={totalSaved}
+          onNext={handleResetNext}
+          onCancel={() => setResetStep(0)} />
       )}
     </div>
   )
