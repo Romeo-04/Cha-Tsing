@@ -177,6 +177,9 @@ export default function App() {
     content = (
       <InsightsScreen key="insights" className={cls}
         palette={palette} income={income} savingsPct={savingsPct}
+        allocations={allocations}
+        spendingLog={spendingLog}
+        savingsLog={savingsLog}
         onBack={() => navigate('slider')}
         onTalk={() => navigate('coach')} />
     )
