@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { CT_TYPE, CT_SEMANTIC } from '../tokens.js'
 import CTHeader from '../components/ui/CTHeader.jsx'
 import Chico from '../components/Chico.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 function getThisMonth(entries) {
   const now = new Date()
@@ -56,8 +57,9 @@ export default function BudgetScreen({
   return (
     <div className={className} style={{
       flex: 1, background: p.bg, fontFamily: CT_TYPE.sans, color: p.ink,
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="Budget Tracker" onBack={onBack} />
 
       <div style={{ flex: 1, overflow: 'auto', padding: '0 20px' }}>
@@ -67,7 +69,7 @@ export default function BudgetScreen({
         {/* Summary card */}
         <div style={{
           padding: '16px', borderRadius: 18,
-          background: `linear-gradient(135deg, ${p.bgCard} 0%, #FFF3E0 100%)`,
+          background: p.bg.startsWith('#1') || p.bg.startsWith('#2') ? p.bgCard : `linear-gradient(135deg, ${p.bgCard} 0%, #FFF3E0 100%)`,
           border: `1px solid ${p.line}`,
           boxShadow: '0 4px 20px rgba(42,31,18,0.1)',
           marginBottom: 12,

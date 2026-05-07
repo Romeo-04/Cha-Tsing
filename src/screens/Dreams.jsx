@@ -4,6 +4,7 @@ import CTHeader from '../components/ui/CTHeader.jsx'
 import CTButton from '../components/ui/CTButton.jsx'
 import FatSlider from '../components/ui/FatSlider.jsx'
 import Chico from '../components/Chico.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 export const BASE_DREAMS = [
   { id: 'boracay',   emoji: '🏝',  label: 'Boracay trip',      target: 45000,
@@ -180,6 +181,7 @@ export default function DreamsScreen({
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="Your dreams" onBack={onBack} />
 
       <div style={{ flex: 1, overflow: 'auto', WebkitOverflowScrolling: 'touch' }}>

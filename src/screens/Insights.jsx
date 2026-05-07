@@ -4,6 +4,7 @@ import { CT_TYPE, CT_SEMANTIC, peso } from '../tokens.js'
 import CTHeader from '../components/ui/CTHeader.jsx'
 import CTButton from '../components/ui/CTButton.jsx'
 import Chico, { chicoStateFromSavings } from '../components/Chico.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 export default function InsightsScreen({ palette, income, savingsPct, onBack, onRestart, onTalk, className }) {
   const p = palette
@@ -50,8 +51,9 @@ export default function InsightsScreen({ palette, income, savingsPct, onBack, on
   return (
     <div className={className} style={{
       flex: 1, background: p.bg, fontFamily: CT_TYPE.sans, color: p.ink,
-      display: 'flex', flexDirection: 'column', overflow: 'auto',
+      display: 'flex', flexDirection: 'column', overflow: 'auto', position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="Insights" onBack={onBack} />
 
       {/* Top: Chico + headline */}

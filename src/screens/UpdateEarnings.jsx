@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { CT_TYPE, CT_SEMANTIC } from '../tokens.js'
 import CTHeader from '../components/ui/CTHeader.jsx'
 import CTButton from '../components/ui/CTButton.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 const PRESETS = [20000, 35000, 50000, 75000, 100000, 150000]
 
@@ -19,8 +20,9 @@ export default function UpdateEarningsScreen({ palette: p, income, onIncomeChang
   return (
     <div className={className} style={{
       flex: 1, background: p.bg, fontFamily: CT_TYPE.sans, color: p.ink,
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="Update earnings" onBack={onBack} />
 
       <div style={{ flex: 1, overflow: 'auto', padding: '20px 20px 0', display: 'flex', flexDirection: 'column' }}>

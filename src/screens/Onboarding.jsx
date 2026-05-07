@@ -3,6 +3,7 @@ import { CT_TYPE, CT_SEMANTIC } from '../tokens.js'
 import Chico from '../components/Chico.jsx'
 import CTHeader from '../components/ui/CTHeader.jsx'
 import CTButton from '../components/ui/CTButton.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 export default function OnboardingScreen({ palette: p, income, name, onNameChange, onIncomeChange, onContinue, className }) {
   const [step, setStep] = useState(0)
@@ -20,8 +21,9 @@ export default function OnboardingScreen({ palette: p, income, name, onNameChang
   return (
     <div className={className} style={{
       flex: 1, background: p.bg, fontFamily: CT_TYPE.sans, color: p.ink,
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="Welcome" />
 
       {/* Chico — fixed height container so it never overflows */}

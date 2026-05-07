@@ -11,11 +11,20 @@ html {
 
 body {
   height: 100%;
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--ct-sans);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
   touch-action: manipulation;
   background: #1a140e;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, #3d2a14 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, #2a1a0e 0%, transparent 60%);
+  pointer-events: none;
 }
 
 #root {
@@ -42,10 +51,20 @@ body {
 
 @media (min-width: 431px) {
   .app-frame {
-    max-height: 932px;
-    border-radius: 40px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.08);
+    max-height: 844px;
+    border-radius: 44px;
+    box-shadow:
+      0 40px 100px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.08),
+      inset 0 0 0 1px rgba(255,255,255,0.06);
   }
+}
+
+/* Notch */
+.notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; background: #000;
+  border-radius: 0 0 20px 20px; z-index: 999; pointer-events: none;
 }
 
 /* Screen transitions */

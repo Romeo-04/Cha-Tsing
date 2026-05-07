@@ -119,9 +119,12 @@ export function chicoLine(state, seed = 0) {
   return lines[seed % lines.length]
 }
 
-export function Chico({ state = 'okay', size = 200, palette = CHICO_PALETTE, animate = true, savings = 0 }) {
+export function Chico({ state = 'okay', size = 200, palette = CHICO_PALETTE, animate = true, savings = 0, gaze = null }) {
   const p = palette
   const expr = CHICO_EXPRESSIONS[state] || CHICO_EXPRESSIONS.okay
+  // Pupil offset: max ±2.5px x, ±2px y — subtle but readable
+  const px = (gaze?.x || 0) * 2.5
+  const py = (gaze?.y || 0) * 2.0
 
   return (
     <div style={{
@@ -226,10 +229,10 @@ export function Chico({ state = 'okay', size = 200, palette = CHICO_PALETTE, ani
         {/* === Eyes === */}
         {expr.eyeShape === 'round' && (
           <g>
-            <ellipse className="chico-eye" cx="82" cy="98" rx="7" ry={expr.eyeH || 8} fill="#1a1410" />
-            <ellipse className="chico-eye" cx="118" cy="98" rx="7" ry={expr.eyeH || 8} fill="#1a1410" />
-            <circle cx="84" cy="96" r="2" fill="#fff" />
-            <circle cx="120" cy="96" r="2" fill="#fff" />
+            <ellipse className="chico-eye" cx={82 + px} cy={98 + py} rx="7" ry={expr.eyeH || 8} fill="#1a1410" />
+            <ellipse className="chico-eye" cx={118 + px} cy={98 + py} rx="7" ry={expr.eyeH || 8} fill="#1a1410" />
+            <circle cx={84 + px} cy={96 + py} r="2" fill="#fff" />
+            <circle cx={120 + px} cy={96 + py} r="2" fill="#fff" />
           </g>
         )}
         {expr.eyeShape === 'happy' && (
@@ -240,27 +243,31 @@ export function Chico({ state = 'okay', size = 200, palette = CHICO_PALETTE, ani
         )}
         {expr.eyeShape === 'star' && (
           <g fill="#1a1410">
-            {[[82, 98], [118, 98]].map(([cx, cy], i) => (
-              <path key={i}
-                d={`M${cx} ${cy - 9} L${cx + 2.5} ${cy - 2.5} L${cx + 9} ${cy} L${cx + 2.5} ${cy + 2.5} L${cx} ${cy + 9} L${cx - 2.5} ${cy + 2.5} L${cx - 9} ${cy} L${cx - 2.5} ${cy - 2.5} Z`} />
-            ))}
+            {[[82, 98], [118, 98]].map(([cx, cy], i) => {
+              const sx = cx + px, sy = cy + py
+              return (
+                <path key={i}
+                  d={`M${sx} ${sy-9} L${sx+2.5} ${sy-2.5} L${sx+9} ${sy} L${sx+2.5} ${sy+2.5} L${sx} ${sy+9} L${sx-2.5} ${sy+2.5} L${sx-9} ${sy} L${sx-2.5} ${sy-2.5} Z`} />
+              )
+            })}
           </g>
         )}
         {expr.eyeShape === 'shock' && (
           <g>
+            {/* whites stay fixed, pupils follow gaze */}
             <circle cx="82" cy="98" r="9" fill="#fff" stroke="#1a1410" strokeWidth="2" />
             <circle cx="118" cy="98" r="9" fill="#fff" stroke="#1a1410" strokeWidth="2" />
-            <circle cx="82" cy="100" r="3.5" fill="#1a1410" />
-            <circle cx="118" cy="100" r="3.5" fill="#1a1410" />
+            <circle cx={82 + px} cy={100 + py} r="3.5" fill="#1a1410" />
+            <circle cx={118 + px} cy={100 + py} r="3.5" fill="#1a1410" />
           </g>
         )}
         {expr.eyeShape === 'worried' && (
           <g>
-            <ellipse cx="82" cy="100" rx="6" ry="7" fill="#1a1410" />
-            <ellipse cx="118" cy="100" rx="6" ry="7" fill="#1a1410" />
-            <circle cx="80" cy="97" r="1.8" fill="#fff" />
-            <circle cx="116" cy="97" r="1.8" fill="#fff" />
-            {/* tear */}
+            <ellipse cx={82 + px} cy={100 + py} rx="6" ry="7" fill="#1a1410" />
+            <ellipse cx={118 + px} cy={100 + py} rx="6" ry="7" fill="#1a1410" />
+            <circle cx={80 + px} cy={97 + py} r="1.8" fill="#fff" />
+            <circle cx={116 + px} cy={97 + py} r="1.8" fill="#fff" />
+            {/* tear stays anchored to face */}
             <path d="M76 108 Q73 115, 76 120 Q79 115, 76 108 Z" fill="#7DD3FC"
                   style={{ animation: 'chico-tear 1.8s ease-in infinite', transformBox: 'fill-box' }} />
           </g>

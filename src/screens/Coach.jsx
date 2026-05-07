@@ -4,6 +4,7 @@ import CTHeader from '../components/ui/CTHeader.jsx'
 import CTButton from '../components/ui/CTButton.jsx'
 import Chico, { chicoStateFromSavings } from '../components/Chico.jsx'
 import { BubbleEditSheet } from '../components/Bubbles.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 function getThisMonthSpent(spendingLog) {
   const now = new Date()
@@ -67,6 +68,7 @@ export default function CoachScreen({
       display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0,
       position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="Talk to Chico" onBack={onBack} />
 
       {/* Chico header card */}

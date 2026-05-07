@@ -5,6 +5,7 @@ import CTButton from '../components/ui/CTButton.jsx'
 import FatSlider from '../components/ui/FatSlider.jsx'
 import Chico, { chicoStateFromSavings, chicoLine } from '../components/Chico.jsx'
 import { BubbleStage, AllocationStack, DroppableChico } from '../components/Bubbles.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 export default function SavingsSliderScreen({
   palette, income, savingsPct, onSavingsChange,
@@ -14,6 +15,7 @@ export default function SavingsSliderScreen({
   className,
 }) {
   const p = palette
+  const [sliderGaze, setSliderGaze] = useState(null)
   const takeHome = Math.round(income * 0.84)
 
   const allocTotal = allocations.reduce((s, a) => s + a.amount, 0)
@@ -60,13 +62,15 @@ export default function SavingsSliderScreen({
   return (
     <div className={className} style={{
       flex: 1, background: p.bg, fontFamily: CT_TYPE.sans, color: p.ink,
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative',
     }}>
+      <WaveBg palette={p} />
       <CTHeader palette={p} title="How much will you save?" onBack={onBack} />
 
       <BubbleStage palette={p} allocations={allocations}
         onAdd={onAddAllocation} onRemove={onRemoveAllocation}
-        onEditAllocation={onAddAllocation}>
+        onEditAllocation={onAddAllocation}
+        externalGaze={sliderGaze}>
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <div style={{ flex: 1, overflow: 'auto', WebkitOverflowScrolling: 'touch', padding: '4px 80px 0 20px' }}>
@@ -181,7 +185,7 @@ export default function SavingsSliderScreen({
                   {Math.round(savingsPct * 100)}%
                 </span>
               </div>
-              <FatSlider value={savingsPct} onChange={onSavingsChange} state={state} p={p} />
+              <FatSlider value={savingsPct} onChange={onSavingsChange} state={state} p={p} onGaze={setSliderGaze} />
             </div>
           </div>
 

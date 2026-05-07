@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { CT_TYPE, CT_SEMANTIC, CT_FONTS, CT_THEME_META, useCountTo } from '../tokens.js'
 import Chico, { chicoStateFromSavings, chicoLine } from '../components/Chico.jsx'
+import WaveBg from '../components/WaveBg.jsx'
 
 function greeting(name) {
   const h = new Date().getHours()
@@ -377,13 +378,14 @@ export default function FeedChicoScreen({
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       position: 'relative',
     }}>
+      <WaveBg palette={p} />
 
       {/* Header */}
       <div style={{
         padding: '16px 20px 14px',
-        background: `linear-gradient(180deg, ${p.bgCard} 0%, ${p.bg} 100%)`,
         borderBottom: `1px solid ${p.line}`,
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        position: 'relative', zIndex: 2,
       }}>
         <div>
           <div style={{ fontFamily: CT_TYPE.serif, fontSize: 26, lineHeight: 1.1, color: p.ink }}>
@@ -393,15 +395,14 @@ export default function FeedChicoScreen({
         </div>
         <button onClick={() => setShowSettings(true)} style={{
           width: 38, height: 38, borderRadius: 12,
-          background: 'linear-gradient(135deg, #C9854A, #E8A05A)',
-          boxShadow: '0 4px 14px rgba(201,133,74,0.45), 0 1px 3px rgba(0,0,0,0.15)',
+          background: CT_SEMANTIC.amber,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 22, flexShrink: 0, lineHeight: 1,
+          fontSize: 20, flexShrink: 0, lineHeight: 1,
           border: 'none', cursor: 'pointer',
         }}>🐒</button>
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: '0 20px' }}>
+      <div style={{ flex: 1, overflow: 'auto', padding: '0 20px', position: 'relative', zIndex: 1 }}>
 
         {/* Chico + speech */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 16, marginBottom: 16 }}>
@@ -425,7 +426,7 @@ export default function FeedChicoScreen({
         {/* Summary card */}
         <div style={{
           padding: '16px', borderRadius: 18,
-          background: `linear-gradient(135deg, ${p.bgCard} 0%, #FFF3E0 100%)`,
+          background: p.bg.startsWith('#1') || p.bg.startsWith('#2') ? p.bgCard : `linear-gradient(135deg, ${p.bgCard} 0%, #FFF3E0 100%)`,
           border: `1px solid ${p.line}`,
           boxShadow: '0 4px 20px rgba(42,31,18,0.1)',
           marginBottom: 12,
@@ -573,28 +574,33 @@ export default function FeedChicoScreen({
       <div style={{
         padding: '10px 20px 16px',
         borderTop: `1px solid ${p.line}`,
-        background: `linear-gradient(180deg, ${p.bg} 0%, ${p.bgCard} 100%)`,
+        background: p.bgCard,
+        position: 'relative', zIndex: 2,
       }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
           <button onClick={() => setShowAdd(true)} style={{
-            flex: 1, padding: '13px', borderRadius: 14,
-            background: `linear-gradient(135deg, ${CT_SEMANTIC.win}, #1a9060)`,
-            boxShadow: '0 4px 16px rgba(34,160,107,0.35)',
-            border: 'none', color: '#fff',
-            fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            fontFamily: CT_TYPE.sans,
+            flex: 1, padding: 0, borderRadius: 14, overflow: 'hidden',
+            border: `1.5px solid ${p.line}`, background: p.bgCard,
+            cursor: 'pointer', fontFamily: CT_TYPE.sans,
+            display: 'flex', alignItems: 'stretch',
           }}>
-            + Save
+            <div style={{ width: 5, background: CT_SEMANTIC.win, flexShrink: 0 }} />
+            <div style={{ flex: 1, padding: '13px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span style={{ fontSize: 18, lineHeight: 1 }}>💰</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: CT_SEMANTIC.win }}>+ Save</span>
+            </div>
           </button>
           <button onClick={() => setShowSpend(true)} style={{
-            flex: 1, padding: '13px', borderRadius: 14,
-            background: `linear-gradient(135deg, ${CT_SEMANTIC.danger}, #b91c1c)`,
-            boxShadow: '0 4px 16px rgba(229,75,60,0.3)',
-            border: 'none', color: '#fff',
-            fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            fontFamily: CT_TYPE.sans,
+            flex: 1, padding: 0, borderRadius: 14, overflow: 'hidden',
+            border: `1.5px solid ${p.line}`, background: p.bgCard,
+            cursor: 'pointer', fontFamily: CT_TYPE.sans,
+            display: 'flex', alignItems: 'stretch',
           }}>
-            - Spend
+            <div style={{ width: 5, background: CT_SEMANTIC.danger, flexShrink: 0 }} />
+            <div style={{ flex: 1, padding: '13px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span style={{ fontSize: 18, lineHeight: 1 }}>💸</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: CT_SEMANTIC.danger }}>− Spend</span>
+            </div>
           </button>
         </div>
 
@@ -608,8 +614,7 @@ export default function FeedChicoScreen({
           ].map(btn => (
             <button key={btn.label} onClick={btn.onClick} style={{
               flex: 1, padding: '10px 4px', borderRadius: 12,
-              background: p.bgCard, border: `1px solid ${p.line}`,
-              boxShadow: '0 2px 6px rgba(42,31,18,0.08)',
+              background: 'transparent', border: `1px solid ${p.line}`,
               color: p.inkSoft, fontSize: 11, cursor: 'pointer', fontFamily: CT_TYPE.sans,
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
             }}>

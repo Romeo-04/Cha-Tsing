@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { CT_PALETTES, CT_FONTS } from './tokens.js'
 import OnboardingScreen from './screens/Onboarding.jsx'
 import SavingsSliderScreen from './screens/Slider.jsx'
@@ -10,6 +10,43 @@ import BudgetScreen from './screens/Budget.jsx'
 import UpdateEarningsScreen from './screens/UpdateEarnings.jsx'
 
 const SCREEN_ORDER = ['onboarding', 'slider', 'dreams', 'insights', 'coach', 'feed', 'savings-page', 'dreams-page', 'budget-page', 'income-setup']
+
+function StatusBar({ palette: p }) {
+  const [time, setTime] = useState('')
+  useEffect(() => {
+    const fmt = () => setTime(new Date().toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' }))
+    fmt()
+    const t = setInterval(fmt, 10000)
+    return () => clearInterval(t)
+  }, [])
+  const isDark = p.bg.startsWith('#1') || p.bg.startsWith('#2')
+  const c = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(42,31,18,0.75)'
+  return (
+    <div style={{
+      height: 44, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+      padding: '0 24px 8px', position: 'relative', zIndex: 10, flexShrink: 0,
+      fontSize: 12, fontWeight: 600, letterSpacing: 0.2, color: c,
+      background: p.bg, transition: 'background .3s',
+    }}>
+      <span style={{ fontSize: 14, fontWeight: 700 }}>{time}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <svg width="16" height="11" viewBox="0 0 16 11">
+          {[0,1,2,3].map(i => <rect key={i} x={i*4} y={10-i*2.5} width="3" height={i*2.5+2} rx="0.8" fill={c} opacity={i<3?0.4:1} />)}
+        </svg>
+        <svg width="15" height="11" viewBox="0 0 15 11">
+          <path d="M7.5 9 L9 7.5 A2 2 0 0 0 6 7.5 Z" fill={c} />
+          <path d="M4.5 6.5 A4.5 4.5 0 0 1 10.5 6.5" stroke={c} strokeWidth="1.4" fill="none" strokeLinecap="round" />
+          <path d="M2 4 A7.5 7.5 0 0 1 13 4" stroke={c} strokeWidth="1.4" fill="none" strokeLinecap="round" opacity="0.5" />
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0" y="1" width="22" height="10" rx="2.5" stroke={c} strokeWidth="1.2" fill="none" />
+          <rect x="22.5" y="3.5" width="2" height="5" rx="1" fill={c} opacity="0.5" />
+          <rect x="1.5" y="2.5" width="16" height="7" rx="1.5" fill={c} />
+        </svg>
+      </div>
+    </div>
+  )
+}
 
 function load(key, fallback) {
   try {
@@ -204,7 +241,11 @@ export default function App() {
 
   return (
     <div className="app-frame" style={{ background: palette.bg, transition: 'background .3s' }}>
-      {content}
+      <div className="notch" />
+      <StatusBar palette={palette} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+        {content}
+      </div>
     </div>
   )
 }

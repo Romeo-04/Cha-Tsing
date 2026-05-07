@@ -28,7 +28,7 @@ const RECOMMENDED_TEMPLATES = [
 export const ChicoDropContext = createContext(null)
 
 // ── BubbleStage ─────────────────────────────────────────────────────────
-export function BubbleStage({ palette, children, allocations, onAdd, onRemove, onEditAllocation, chicoState, onChicoStateOverride }) {
+export function BubbleStage({ palette, children, allocations, onAdd, onRemove, onEditAllocation, chicoState, onChicoStateOverride, externalGaze = null }) {
   const p = palette
   const stageRef = useRef(null)
   const chicoRefHolder = useRef(null)
@@ -43,6 +43,7 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
   const [editing, setEditing] = useState(null)
   const [near, setNear] = useState(false)
   const [eating, setEating] = useState(false)
+  const [bubbleGaze, setBubbleGaze] = useState({ x: 0, y: 0 })
 
   const longPressTimer = useRef(null)
 
@@ -78,12 +79,22 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
       setDrag(d => d ? { ...d, x: ev.clientX - r2.left, y: ev.clientY - r2.top } : null)
 
       const chicoEl = chicoRefHolder.current?.current
-      if (chicoEl) {
+      if (chicoEl && stageRef.current) {
         const cr = chicoEl.getBoundingClientRect()
+        const sr = stageRef.current.getBoundingClientRect()
         const ccx = cr.left + cr.width / 2
         const ccy = cr.top + cr.height / 2
         const dist = Math.hypot(ev.clientX - ccx, ev.clientY - ccy)
         setNear(dist < Math.max(cr.width, cr.height) * 0.6 + 30)
+
+        // Gaze: direction from Chico center → bubble (stage-relative coords)
+        const chicoSX = cr.left + cr.width / 2 - sr.left
+        const chicoSY = cr.top + cr.height / 2 - sr.top
+        const dx = (ev.clientX - sr.left) - chicoSX
+        const dy = (ev.clientY - sr.top) - chicoSY
+        const len = Math.hypot(dx, dy) || 1
+        const scale = Math.min(1, len / 160)
+        setBubbleGaze({ x: (dx / len) * scale, y: (dy / len) * scale })
       }
     }
     const cleanup = () => {
@@ -92,6 +103,7 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
       if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null }
       setDrag(null)
       setNear(false)
+      setBubbleGaze({ x: 0, y: 0 })
     }
     const up = (ev) => {
       if (ev.pointerId !== pointerId) return
@@ -149,8 +161,10 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
     }
   }
 
+  const activeGaze = drag ? bubbleGaze : (externalGaze || { x: 0, y: 0 })
+
   return (
-    <ChicoDropContext.Provider value={{ setChicoRef, chompPulse, eating, near: near && !!drag, dragColor: drag?.bubble.color }}>
+    <ChicoDropContext.Provider value={{ setChicoRef, chompPulse, eating, near: near && !!drag, dragColor: drag?.bubble.color, gaze: activeGaze }}>
       <div ref={stageRef} style={{
         position: 'relative', flex: 1, display: 'flex', flexDirection: 'column',
         minHeight: 0, overflow: 'hidden',
@@ -581,6 +595,7 @@ export function DroppableChico({ state, size }) {
   }, [ctx?.chompPulse])
 
   const effectiveState = ctx?.eating ? 'eating' : ctx?.near ? 'hungry' : state
+  const gaze = ctx?.gaze || { x: 0, y: 0 }
 
   return (
     <div ref={wrapRef} style={{
@@ -588,7 +603,7 @@ export function DroppableChico({ state, size }) {
       animation: chomp % 2 === 1 ? 'chico-chomp 0.32s cubic-bezier(.2,.8,.3,1)' : 'none',
       transformOrigin: 'center bottom',
     }}>
-      <Chico state={effectiveState} size={size} />
+      <Chico state={effectiveState} size={size} gaze={gaze} />
       {crumbs.map(c => (
         <span key={c.id} style={{
           position: 'absolute', left: '50%', top: '60%',
