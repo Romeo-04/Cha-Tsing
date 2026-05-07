@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cha-Tsing — Hi-fi prototype</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #2A1F12; }
+    body { font-family: ui-sans-serif, system-ui, sans-serif; color: #FAEEDA; }
+    * { box-sizing: border-box; }
+    #root { min-height: 100vh; }
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- shared starters -->
+  <script type="text/babel" src="android-frame.jsx"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+
+  <!-- our code -->
+  <script type="text/babel" src="tokens.jsx"></script>
+  <script type="text/babel" src="chico.jsx"></script>
+  <script type="text/babel" src="chico-bubbles.jsx"></script>
+  <script type="text/babel" src="screen-onboarding.jsx"></script>
+  <script type="text/babel" src="screen-slider.jsx"></script>
+  <script type="text/babel" src="screen-dreams.jsx"></script>
+  <script type="text/babel" src="screen-insights.jsx"></script>
+  <script type="text/babel" src="screen-coach.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "income": 35000,
+      "palette": "cream",
+      "forceState": "auto",
+      "sliderVariant": "split"
+    }/*EDITMODE-END*/;
+
+    const PALETTE_LABELS = [
+      { value: 'cream',    label: 'Cream' },
+      { value: 'sage',     label: 'Sage'  },
+      { value: 'rose',     label: 'Rose'  },
+      { value: 'midnight', label: 'Dark'  },
+    ];
+    const STATE_OPTIONS = [
+      { value: 'auto',     label: 'Auto' },
+      { value: 'rich',     label: 'Rich' },
+      { value: 'thriving', label: 'Thrive' },
+      { value: 'okay',     label: 'Okay' },
+      { value: 'stressed', label: 'Stress' },
+      { value: 'shocked',  label: 'Shock' },
+    ];
+
+    function Prototype({ initialScreen = 'onboarding', sliderVariant = 'classic', tweakedPalette, forceState, income: extIncome, onIncomeChange }) {
+      const [screen, setScreen] = React.useState(initialScreen);
+      const [income, setIncomeLocal] = React.useState(extIncome ?? 55000);
+      const [savingsPct, setSavingsPct] = React.useState(0.18);
+      const [allocations, setAllocations] = React.useState([]);
+
+      const addAllocation = (b) => setAllocations(prev =>
+        prev.find(a => a.id === b.id) ? prev : [...prev, b]);
+      const removeAllocation = (id) => setAllocations(prev => prev.filter(a => a.id !== id));
+
+      // sync external income
+      React.useEffect(() => { if (extIncome != null) setIncomeLocal(extIncome); }, [extIncome]);
+
+      const setIncome = (v) => {
+        setIncomeLocal(v);
+        if (onIncomeChange) onIncomeChange(v);
+      };
+
+      const palette = CT_PALETTES[tweakedPalette || 'cream'];
+      const takeHome = Math.round(income * 0.84);
+      const monthly = Math.round(takeHome * savingsPct);
+      const fState = (forceState && forceState !== 'auto') ? forceState : null;
+
+      let body;
+      if (screen === 'onboarding') {
+        body = <OnboardingScreen
+          palette={palette} income={income} onIncomeChange={setIncome}
+          onContinue={() => setScreen('slider')} />;
+      } else if (screen === 'slider') {
+        body = <SavingsSliderScreen
+          palette={palette} income={income} savingsPct={savingsPct}
+          onSavingsChange={setSavingsPct}
+          forcedState={fState}
+          variant={sliderVariant}
+          allocations={allocations}
+          onAddAllocation={addAllocation}
+          onRemoveAllocation={removeAllocation}
+          onBack={() => setScreen('onboarding')}
+          onNext={() => setScreen('dreams')} />;
+      } else if (screen === 'dreams') {
+        body = <DreamTrackerScreen
+          palette={palette} monthlySavings={monthly}
+          onBack={() => setScreen('slider')}
+          onNext={() => setScreen('insights')} />;
+      } else if (screen === 'insights') {
+        body = <InsightsScreen
+          palette={palette} income={income} savingsPct={savingsPct}
+          onBack={() => setScreen('slider')}
+          onTalk={() => setScreen('coach')}
+          onRestart={() => setScreen('onboarding')} />;
+      } else {
+        body = <CoachScreen
+          palette={palette} income={income} savingsPct={savingsPct}
+          onSavingsChange={setSavingsPct}
+          allocations={allocations}
+          onAddAllocation={addAllocation}
+          onRemoveAllocation={removeAllocation}
+          onBack={() => setScreen('insights')} />;
+      }
+
+      // little screen-tabs at top of frame for jumping (subtle, only show when not onboarding)
+      const tabs = [
+        { id: 'onboarding', label: 'Start' },
+        { id: 'slider',     label: 'Save'  },
+        { id: 'dreams',     label: 'Dream' },
+        { id: 'insights',   label: 'Insights' },
+        { id: 'coach',      label: 'Chat' },
+      ];
+
+      return (
+        <AndroidDevice width={392} height={812} dark={tweakedPalette === 'midnight'}>
+          <div data-screen-label={`${tabs.findIndex(t=>t.id===screen)+1} ${screen}`}
+               style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, height: '100%' }}>
+            {/* tiny step dots */}
+            <div style={{
+              display: 'flex', justifyContent: 'center', gap: 6,
+              padding: '6px 0 2px', background: palette.bg,
+            }}>
+              {tabs.map(t => (
+                <button key={t.id} onClick={() => setScreen(t.id)} style={{
+                  width: t.id === screen ? 18 : 6, height: 6, borderRadius: 3,
+                  border: 'none', padding: 0, cursor: 'pointer',
+                  background: t.id === screen ? palette.ink : palette.line,
+                  transition: 'width .25s, background .25s',
+                }} aria-label={t.label} />
+              ))}
+            </div>
+            {body}
+          </div>
+        </AndroidDevice>
+      );
+    }
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      // pages of the canvas — full flow + 3 slider variants
+      return (
+        <>
+          <DesignCanvas>
+            <DCSection id="flow" title="Full Flow — Cream palette · ‘Classic’ slider">
+              <DCArtboard id="full" label="Connected prototype · tap dots to jump" width={392} height={812}>
+                <Prototype
+                  initialScreen="onboarding"
+                  sliderVariant={t.sliderVariant}
+                  tweakedPalette={t.palette}
+                  forceState={t.forceState}
+                  income={t.income}
+                  onIncomeChange={(v) => setTweak('income', v)}
+                />
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection id="variants" title="Savings Slider — 3 layout variations">
+              <DCArtboard id="v-classic" label="A · Classic — Chico hero, big number, slider" width={392} height={812}>
+                <Prototype
+                  initialScreen="slider"
+                  sliderVariant="classic"
+                  tweakedPalette={t.palette}
+                  forceState={t.forceState}
+                  income={t.income}
+                />
+              </DCArtboard>
+              <DCArtboard id="v-split" label="B · Split — money allocation bar, ticker" width={392} height={812}>
+                <Prototype
+                  initialScreen="slider"
+                  sliderVariant="split"
+                  tweakedPalette={t.palette}
+                  forceState={t.forceState}
+                  income={t.income}
+                />
+              </DCArtboard>
+              <DCArtboard id="v-dial" label="C · Dial — radial gauge wraps Chico" width={392} height={812}>
+                <Prototype
+                  initialScreen="slider"
+                  sliderVariant="dial"
+                  tweakedPalette={t.palette}
+                  forceState={t.forceState}
+                  income={t.income}
+                />
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection id="states" title="Chico — 5 expression states">
+              <DCArtboard id="states" label="Drag the slider to morph faces in real time" width={1080} height={420}>
+                <ChicoStateRow />
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel>
+            <TweakSection label="Theme" />
+            <TweakRadio label="Palette" value={t.palette}
+              options={PALETTE_LABELS}
+              onChange={(v) => setTweak('palette', v)} />
+            <TweakSection label="Hero slider" />
+            <TweakRadio label="Variant" value={t.sliderVariant}
+              options={[
+                { value: 'classic', label: 'Classic' },
+                { value: 'split',   label: 'Split'   },
+                { value: 'dial',    label: 'Dial'    },
+              ]}
+              onChange={(v) => setTweak('sliderVariant', v)} />
+            <TweakSection label="Chico" />
+            <TweakSelect label="Force state" value={t.forceState}
+              options={STATE_OPTIONS}
+              onChange={(v) => setTweak('forceState', v)} />
+            <TweakSection label="Money" />
+            <TweakSlider label="Monthly gross" value={t.income}
+              min={15000} max={250000} step={5000} unit="₱"
+              onChange={(v) => setTweak('income', v)} />
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    // Chico states gallery — read-only swatch row
+    function ChicoStateRow() {
+      const states = [
+        { id: 'shocked',  label: 'Shocked',  pct: '<5%',   note: '"OOK?! Where did the bananas go?!"' },
+        { id: 'stressed', label: 'Stressed', pct: '5–12%', note: '"The branch is creaking, friend."' },
+        { id: 'okay',     label: 'Okay',     pct: '12–25%',note: '"Eh, we\'re surviving."' },
+        { id: 'thriving', label: 'Thriving', pct: '25–40%',note: '"Steady swinging. Respect."' },
+        { id: 'rich',     label: 'Rich',     pct: '40%+',  note: '"Top of the tree, baby."' },
+      ];
+      return (
+        <div style={{
+          width: '100%', height: '100%', background: '#FAEEDA',
+          display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, padding: 24,
+          fontFamily: 'ui-sans-serif, system-ui, sans-serif', color: '#2A1F12',
+        }}>
+          {states.map(s => (
+            <div key={s.id} style={{
+              background: '#FFF8EC', border: '1px solid #E8D4B0', borderRadius: 18,
+              padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+            }}>
+              <Chico state={s.id} size={130} />
+              <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, marginTop: 6 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: '#9C8870', textTransform: 'uppercase', letterSpacing: 1 }}>{s.pct}</div>
+              <div style={{ fontSize: 12, color: '#6B5640', textAlign: 'center', fontStyle: 'italic', lineHeight: 1.35, marginTop: 4 }}>
+                {s.note}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
