@@ -1,34 +1,68 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <circle cx="256" cy="256" r="256" fill="#FAEEDA"/>
-  <!-- ears -->
-  <ellipse cx="88" cy="240" rx="44" ry="56" fill="#C9854A"/>
-  <ellipse cx="88" cy="240" rx="24" ry="32" fill="#F5D8B0"/>
-  <ellipse cx="424" cy="240" rx="44" ry="56" fill="#C9854A"/>
+  <defs>
+    <radialGradient id="fur-g" cx="50%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#E8B07A"/>
+      <stop offset="100%" stop-color="#C9854A"/>
+    </radialGradient>
+    <radialGradient id="face-g" cx="50%" cy="55%" r="52%">
+      <stop offset="0%" stop-color="#FBE6C5"/>
+      <stop offset="100%" stop-color="#F5D8B0"/>
+    </radialGradient>
+    <radialGradient id="bg-g" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#FFF8EC"/>
+      <stop offset="100%" stop-color="#F5E2C5"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Warm cream background -->
+  <circle cx="256" cy="256" r="256" fill="url(#bg-g)"/>
+
+  <!-- Sparkles (thriving) -->
+  <g transform="translate(88 120)">
+    <path d="M0 -14 L3.5 -3.5 L14 0 L3.5 3.5 L0 14 L-3.5 3.5 L-14 0 L-3.5 -3.5 Z" fill="#FFB347" opacity="0.9"/>
+  </g>
+  <g transform="translate(424 148)">
+    <path d="M0 -11 L2.8 -2.8 L11 0 L2.8 2.8 L0 11 L-2.8 2.8 L-11 0 L-2.8 -2.8 Z" fill="#FFB347" opacity="0.85"/>
+  </g>
+  <g transform="translate(70 340)">
+    <path d="M0 -10 L2.5 -2.5 L10 0 L2.5 2.5 L0 10 L-2.5 2.5 L-10 0 L-2.5 -2.5 Z" fill="#FFB347" opacity="0.7"/>
+  </g>
+  <g transform="translate(440 390)">
+    <path d="M0 -9 L2.2 -2.2 L9 0 L2.2 2.2 L0 9 L-2.2 2.2 L-9 0 L-2.2 -2.2 Z" fill="#FFB347" opacity="0.65"/>
+  </g>
+
+  <!-- Ears -->
+  <ellipse cx="88"  cy="240" rx="44" ry="56" fill="url(#fur-g)"/>
+  <ellipse cx="88"  cy="240" rx="24" ry="32" fill="#F5D8B0"/>
+  <ellipse cx="424" cy="240" rx="44" ry="56" fill="url(#fur-g)"/>
   <ellipse cx="424" cy="240" rx="24" ry="32" fill="#F5D8B0"/>
-  <!-- head -->
-  <ellipse cx="256" cy="248" rx="168" ry="158" fill="#C9854A"/>
-  <!-- face -->
-  <ellipse cx="256" cy="272" rx="120" ry="112" fill="#F5D8B0"/>
-  <!-- hair tuft -->
+
+  <!-- Head -->
+  <ellipse cx="256" cy="248" rx="168" ry="158" fill="url(#fur-g)"/>
+  <!-- Face mask -->
+  <ellipse cx="256" cy="272" rx="120" ry="112" fill="url(#face-g)"/>
+
+  <!-- Hair tuft -->
   <path d="M226 108 Q236 88, 256 96 Q276 88, 286 108 Q270 103, 256 108 Q242 103, 226 108 Z" fill="#8E5A2D"/>
-  <!-- brows -->
-  <path d="M196 208 Q214 198, 232 208" stroke="#8E5A2D" stroke-width="9" stroke-linecap="round" fill="none"/>
-  <path d="M280 208 Q298 198, 316 208" stroke="#8E5A2D" stroke-width="9" stroke-linecap="round" fill="none"/>
-  <!-- eyes -->
-  <ellipse cx="212" cy="244" rx="20" ry="22" fill="#2A1F12"/>
-  <ellipse cx="300" cy="244" rx="20" ry="22" fill="#2A1F12"/>
-  <circle cx="218" cy="238" r="6" fill="white"/>
-  <circle cx="306" cy="238" r="6" fill="white"/>
-  <!-- snout -->
-  <ellipse cx="256" cy="318" rx="52" ry="38" fill="#E5BD8A" opacity="0.5"/>
-  <!-- nostrils -->
-  <ellipse cx="244" cy="308" rx="5" ry="7" fill="#5C2E14"/>
-  <ellipse cx="268" cy="308" rx="5" ry="7" fill="#5C2E14"/>
-  <!-- smile -->
-  <path d="M224 336 Q256 362 288 336" stroke="#5C2E14" stroke-width="8" fill="none" stroke-linecap="round"/>
-  <!-- blush -->
-  <ellipse cx="178" cy="298" rx="22" ry="14" fill="#F2A28A" opacity="0.55"/>
-  <ellipse cx="334" cy="298" rx="22" ry="14" fill="#F2A28A" opacity="0.55"/>
-  <!-- money sign -->
-  <text x="256" y="424" text-anchor="middle" font-size="64" fill="#22A06B" font-family="system-ui" font-weight="bold">₱</text>
+
+  <!-- Brows (thriving: arched gently upward) -->
+  <path d="M192 212 Q212 200, 234 212" stroke="#8E5A2D" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M278 212 Q300 200, 320 212" stroke="#8E5A2D" stroke-width="9" stroke-linecap="round" fill="none"/>
+
+  <!-- Happy arc eyes (thriving — ^_^ style) -->
+  <path d="M194 252 Q213 230, 232 252" stroke="#1a1410" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <path d="M280 252 Q299 230, 318 252" stroke="#1a1410" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+  <!-- Blush -->
+  <ellipse cx="176" cy="302" rx="26" ry="15" fill="#F2A28A" opacity="0.55"/>
+  <ellipse cx="336" cy="302" rx="26" ry="15" fill="#F2A28A" opacity="0.55"/>
+
+  <!-- Snout -->
+  <ellipse cx="256" cy="322" rx="52" ry="36" fill="#E5BD8A" opacity="0.4"/>
+  <!-- Nostrils -->
+  <ellipse cx="244" cy="312" rx="4" ry="6" fill="#8E5A2D"/>
+  <ellipse cx="268" cy="312" rx="4" ry="6" fill="#8E5A2D"/>
+
+  <!-- Smile -->
+  <path d="M222 338 Q256 366, 290 338" stroke="#5C2E14" stroke-width="8" fill="none" stroke-linecap="round"/>
 </svg>

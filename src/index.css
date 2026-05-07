@@ -53,7 +53,8 @@ body::before {
 @media (max-width: 430px) {
   .app-frame {
     padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* min 20px bottom padding so browser nav bars don't overlap content */
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px);
   }
   /* Hide the simulated phone chrome — the real device already has these */
   .notch,
