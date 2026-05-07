@@ -130,6 +130,7 @@ export default function FeedChicoScreen({
   palette: p, name, income, savingsPct, monthly,
   savingsLog = [],
   activeDreamId, dreams = [],
+  dreamProgress = {},
   onAddEntry, onRemoveEntry,
   onGoSlider, onGoDreams, onGoCoach,
   className,
@@ -145,14 +146,13 @@ export default function FeedChicoScreen({
   const chicoState = chicoStateFromSavings(chicoPct)
   const line = chicoLine(chicoState, 0)
 
-  // Active dream from the dreams screen
+  // Active dream — progress comes from the Dreams screen input (persisted)
   const activeDream = dreams.find(d => d.id === activeDreamId) || dreams[0]
-  const dreamProgress = activeDream && activeDream.target > 0
-    ? Math.min(1, totalSaved / activeDream.target)
-    : 0
-  const isGoalReached = dreamProgress >= 1
+  const dreamPct = Math.min(1, dreamProgress[activeDreamId] || 0)
+  const isGoalReached = dreamPct >= 1
+  const dreamSaved = activeDream ? Math.round(activeDream.target * dreamPct) : 0
   const monthsLeft = activeDream && monthly > 0 && !isGoalReached
-    ? Math.ceil((activeDream.target - totalSaved) / monthly)
+    ? Math.ceil((activeDream.target - dreamSaved) / monthly)
     : 0
 
   const handleAdd = (entry) => {
@@ -185,10 +185,10 @@ export default function FeedChicoScreen({
         <div style={{
           width: 38, height: 38, borderRadius: 12,
           background: 'linear-gradient(135deg, #C9854A, #E8A05A)',
-          boxShadow: '0 4px 12px rgba(201,133,74,0.4)',
-          color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: CT_TYPE.serif, fontSize: 20, fontWeight: 600, flexShrink: 0,
-        }}>C</div>
+          boxShadow: '0 4px 14px rgba(201,133,74,0.45), 0 1px 3px rgba(0,0,0,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 22, flexShrink: 0, lineHeight: 1,
+        }}>🐒</div>
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '0 20px' }}>
@@ -245,14 +245,14 @@ export default function FeedChicoScreen({
                   padding: '4px 10px', borderRadius: 999,
                   border: `1px solid ${p.line}`, background: 'transparent',
                   color: p.inkSoft, fontSize: 10, cursor: 'pointer', whiteSpace: 'nowrap',
-                }}>Change →</button>
+                }}>Change</button>
               </div>
 
               {/* Progress bar */}
               <div style={{ height: 10, borderRadius: 5, background: p.line, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
-                  width: `${Math.min(100, dreamProgress * 100)}%`,
+                  width: `${Math.min(100, dreamPct * 100)}%`,
                   background: isGoalReached
                     ? `linear-gradient(90deg, ${CT_SEMANTIC.win}, #34D399)`
                     : `linear-gradient(90deg, ${CT_SEMANTIC.dream}, #9B6FFF)`,
@@ -270,7 +270,7 @@ export default function FeedChicoScreen({
                   color: isGoalReached ? CT_SEMANTIC.win : CT_SEMANTIC.dream,
                   fontWeight: 700,
                 }}>
-                  {Math.round(dreamProgress * 100)}% of ₱{activeDream.target.toLocaleString('en-PH')}
+                  {Math.round(dreamPct * 100)}% of ₱{activeDream.target.toLocaleString('en-PH')}
                 </span>
                 <span style={{ fontSize: 11, color: p.inkMuted }}>
                   {isGoalReached

@@ -51,6 +51,7 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
     const stage = stageRef.current
     if (!stage) return
     const r = stage.getBoundingClientRect()
+    const pointerId = e.pointerId
 
     let movedFar = false
     const startX = e.clientX, startY = e.clientY
@@ -67,6 +68,7 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
     })
 
     const move = (ev) => {
+      if (ev.pointerId !== pointerId) return
       const dx = ev.clientX - startX, dy = ev.clientY - startY
       if (Math.hypot(dx, dy) > 8) {
         movedFar = true
@@ -92,6 +94,7 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
       setNear(false)
     }
     const up = (ev) => {
+      if (ev.pointerId !== pointerId) return
       const chicoEl = chicoRefHolder.current?.current
       if (chicoEl && movedFar) {
         const cr = chicoEl.getBoundingClientRect()

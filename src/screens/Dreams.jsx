@@ -121,7 +121,7 @@ function AddDreamSheet({ palette: p, onSave, onCancel }) {
               border: 'none', color: p.bg,
               fontSize: 14, fontWeight: 600, cursor: label.trim() && target ? 'pointer' : 'default',
             }}>
-            Add dream →
+            Add dream
           </button>
         </div>
       </div>
@@ -133,19 +133,15 @@ export default function DreamsScreen({
   palette: p, monthlySavings,
   activeDreamId, onActiveDreamChange,
   dreams, onDreamsChange,
+  dreamProgress, onDreamProgressChange,
   onBack, onNext, className,
 }) {
-  const [progress, setProgress] = useState(() => {
-    const init = {}
-    dreams.forEach(d => { init[d.id] = 0 })
-    return init
-  })
   const [showAdd, setShowAdd] = useState(false)
   const [editingAmount, setEditingAmount] = useState(false)
   const [draftAmount, setDraftAmount] = useState('')
 
   const active = dreams.find(d => d.id === activeDreamId) || dreams[0]
-  const pct = Math.min(1, progress[activeDreamId] || 0)
+  const pct = Math.min(1, dreamProgress[activeDreamId] || 0)
   const isGoalReached = pct >= 1
 
   const savedAmount = Math.round(active.target * pct)
@@ -161,7 +157,7 @@ export default function DreamsScreen({
 
   const setActivePct = (v) => {
     const clamped = Math.min(1, Math.max(0, v))
-    setProgress(prev => ({ ...prev, [activeDreamId]: clamped }))
+    onDreamProgressChange({ ...dreamProgress, [activeDreamId]: clamped })
   }
 
   const commitDraftAmount = () => {
@@ -173,7 +169,7 @@ export default function DreamsScreen({
 
   const addCustomDream = (dream) => {
     onDreamsChange([...dreams, dream])
-    setProgress(prev => ({ ...prev, [dream.id]: 0 }))
+    onDreamProgressChange({ ...dreamProgress, [dream.id]: 0 })
     onActiveDreamChange(dream.id)
     setShowAdd(false)
   }
@@ -185,6 +181,8 @@ export default function DreamsScreen({
       position: 'relative',
     }}>
       <CTHeader palette={p} title="Your dreams" onBack={onBack} />
+
+      <div style={{ flex: 1, overflow: 'auto', WebkitOverflowScrolling: 'touch' }}>
 
       {/* Hero card */}
       <div style={{ padding: '4px 20px 0' }}>
@@ -275,7 +273,7 @@ export default function DreamsScreen({
       <div style={{ display: 'flex', gap: 8, padding: '4px 20px 6px', overflowX: 'auto', scrollbarWidth: 'none' }}>
         {dreams.map(d => {
           const isActive = d.id === activeDreamId
-          const dpct = Math.min(1, progress[d.id] || 0)
+          const dpct = Math.min(1, dreamProgress[d.id] || 0)
           return (
             <button key={d.id} onClick={() => onActiveDreamChange(d.id)} style={{
               flexShrink: 0, width: 100, padding: '10px 10px',
@@ -370,9 +368,11 @@ export default function DreamsScreen({
         )}
       </div>
 
-      <div style={{ flex: 1 }} />
-      <div style={{ padding: '0 20px 16px' }}>
-        <CTButton palette={p} label="See my insights →" onClick={onNext} />
+      <div style={{ height: 16 }} />
+      </div>{/* end scrollable */}
+
+      <div style={{ padding: '10px 20px 16px', borderTop: `1px solid ${p.line}` }}>
+        <CTButton palette={p} label="See my insights" onClick={onNext} />
       </div>
 
       {showAdd && (

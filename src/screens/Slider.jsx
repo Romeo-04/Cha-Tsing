@@ -67,7 +67,8 @@ export default function SavingsSliderScreen({
         onAdd={onAddAllocation} onRemove={onRemoveAllocation}
         onEditAllocation={onAddAllocation}>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 80px 0 20px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div style={{ flex: 1, overflow: 'auto', WebkitOverflowScrolling: 'touch', padding: '4px 80px 0 20px' }}>
 
           {/* Chico + quote row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 4 }}>
@@ -209,10 +210,13 @@ export default function SavingsSliderScreen({
             <AllocationStack palette={p} allocations={allocations} onRemove={onRemoveAllocation} />
           </div>
 
-          <div style={{ flex: 1 }} />
-          <CTButton palette={p} label="Lock it in →" onClick={onNext} />
-          <div style={{ height: 16 }} />
+          <div style={{ height: 8 }} />
+        </div>{/* end scrollable */}
+
+        <div style={{ padding: '10px 20px 16px' }}>
+          <CTButton palette={p} label="Lock it in" onClick={onNext} />
         </div>
+        </div>{/* end outer wrapper */}
       </BubbleStage>
     </div>
   )

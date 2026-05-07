@@ -133,7 +133,7 @@ export default function OnboardingScreen({ palette: p, income, name, onNameChang
           </div>
 
           <div style={{ flex: 1 }} />
-          <CTButton palette={p} onClick={handleContinue} label="Show me the damage →" />
+          <CTButton palette={p} onClick={handleContinue} label="Show me the damage" />
           <div style={{ height: 20 }} />
         </div>
       )}

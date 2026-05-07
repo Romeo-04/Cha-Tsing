@@ -13,17 +13,18 @@ export default function FatSlider({ value, onChange, state, p, max = 0.6 }) {
   }
 
   const onPointerDown = (e) => {
+    e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
     setDragging(true)
     onChange(valueAt(e.clientX))
-    const move = (ev) => onChange(valueAt(ev.clientX))
-    const up = () => {
-      setDragging(false)
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-    }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
   }
+
+  const onPointerMove = (e) => {
+    if (!dragging) return
+    onChange(valueAt(e.clientX))
+  }
+
+  const onPointerUp = () => setDragging(false)
 
   const pct = (value / max) * 100
   const fillColor =
@@ -34,7 +35,11 @@ export default function FatSlider({ value, onChange, state, p, max = 0.6 }) {
     /* shocked */          CT_SEMANTIC.danger
 
   return (
-    <div ref={trackRef} onPointerDown={onPointerDown}
+    <div ref={trackRef}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
       style={{
         position: 'relative', height: 44, cursor: dragging ? 'grabbing' : 'grab',
         touchAction: 'none', userSelect: 'none',

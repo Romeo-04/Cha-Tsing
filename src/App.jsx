@@ -27,8 +27,10 @@ export default function App() {
   const [savingsLog, setSavingsLog] = useState(() => load('ct_savings_log', []))
   const [activeDreamId, setActiveDreamIdState] = useState(() => load('ct_active_dream_id', 'boracay'))
   const [dreams, setDreamsState] = useState(() => load('ct_dreams', BASE_DREAMS))
+  const [dreamProgress, setDreamProgressState] = useState(() => load('ct_dream_progress', {}))
   const [screen, setScreen] = useState(() => load('ct_name', '') ? 'feed' : 'onboarding')
   const [direction, setDirection] = useState('forward')
+  const [dreamSource, setDreamSource] = useState('slider')
 
   const palette = CT_PALETTES['cream']
 
@@ -39,12 +41,14 @@ export default function App() {
   useEffect(() => { localStorage.setItem('ct_savings_log', JSON.stringify(savingsLog)) }, [savingsLog])
   useEffect(() => { localStorage.setItem('ct_active_dream_id', JSON.stringify(activeDreamId)) }, [activeDreamId])
   useEffect(() => { localStorage.setItem('ct_dreams', JSON.stringify(dreams)) }, [dreams])
+  useEffect(() => { localStorage.setItem('ct_dream_progress', JSON.stringify(dreamProgress)) }, [dreamProgress])
 
   const setName = (n) => setNameState(n)
   const setIncome = (v) => setIncomeState(v)
   const setSavingsPct = (v) => setSavingsPctState(v)
   const setActiveDreamId = (id) => setActiveDreamIdState(id)
   const setDreams = (d) => setDreamsState(d)
+  const setDreamProgress = (v) => setDreamProgressState(v)
 
   const navigate = (to) => {
     const from = SCREEN_ORDER.indexOf(screen)
@@ -85,7 +89,7 @@ export default function App() {
         onAddAllocation={addAllocation}
         onRemoveAllocation={removeAllocation}
         onBack={() => navigate(name ? 'feed' : 'onboarding')}
-        onNext={() => navigate('dreams')} />
+        onNext={() => { setDreamSource('slider'); navigate('dreams') }} />
     )
   } else if (screen === 'dreams') {
     content = (
@@ -95,7 +99,9 @@ export default function App() {
         onActiveDreamChange={setActiveDreamId}
         dreams={dreams}
         onDreamsChange={setDreams}
-        onBack={() => navigate('slider')}
+        dreamProgress={dreamProgress}
+        onDreamProgressChange={setDreamProgress}
+        onBack={() => navigate(dreamSource)}
         onNext={() => navigate('insights')} />
     )
   } else if (screen === 'insights') {
@@ -123,10 +129,11 @@ export default function App() {
         savingsLog={savingsLog}
         activeDreamId={activeDreamId}
         dreams={dreams}
+        dreamProgress={dreamProgress}
         onAddEntry={addSavingsEntry}
         onRemoveEntry={removeSavingsEntry}
         onGoSlider={() => navigate('slider')}
-        onGoDreams={() => navigate('dreams')}
+        onGoDreams={() => { setDreamSource('feed'); navigate('dreams') }}
         onGoCoach={() => navigate('coach')} />
     )
   }
