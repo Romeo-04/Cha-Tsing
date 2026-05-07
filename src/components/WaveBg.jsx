@@ -4,9 +4,9 @@ export default function WaveBg({ palette: p }) {
   const accentColor = isDark ? 'rgba(201,133,74,0.07)'  : 'rgba(201,133,74,0.09)'
 
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0, contain: 'strict' }}>
       <svg viewBox="0 0 390 844" width="390" height="844" preserveAspectRatio="none"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', willChange: 'transform' }}>
         <defs>
           <style>{`
             @keyframes ct-wave1 { 0%,100%{d:path("M0 600 Q97 560 195 590 Q293 620 390 580 L390 844 L0 844 Z")} 50%{d:path("M0 580 Q97 620 195 590 Q293 560 390 600 L390 844 L0 844 Z")} }

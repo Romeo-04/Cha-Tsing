@@ -1,5 +1,6 @@
 // Chico.jsx — Chico the monkey, 5 expression states
 // States: 'rich' | 'thriving' | 'okay' | 'stressed' | 'shocked'
+import { memo } from 'react'
 
 const CHICO_PALETTE = {
   fur: '#C9854A',
@@ -328,4 +329,4 @@ export function Chico({ state = 'okay', size = 200, palette = CHICO_PALETTE, ani
   )
 }
 
-export default Chico
+export default memo(Chico)

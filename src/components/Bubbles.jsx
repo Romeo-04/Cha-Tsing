@@ -51,6 +51,8 @@ export function BubbleStage({ palette, children, allocations, onAdd, onRemove, o
     e.preventDefault()
     const stage = stageRef.current
     if (!stage) return
+    // Capture pointer so we keep receiving events even if finger leaves the element
+    try { e.currentTarget.setPointerCapture(e.pointerId) } catch (_) {}
     const r = stage.getBoundingClientRect()
     const pointerId = e.pointerId
 
@@ -258,6 +260,8 @@ function BubbleChip({ bubble, index, onPointerDown, hidden }) {
         pointerEvents: 'auto', cursor: 'grab', visibility: hidden ? 'hidden' : 'visible',
         animation: `bubble-bob ${2.4 + index * 0.2}s ease-in-out ${index * 0.15}s infinite`,
         alignSelf: 'center',
+        touchAction: 'none',  // critical: prevents browser from hijacking touch for scroll
+        userSelect: 'none',
       }}>
       <BubbleChipBody bubble={bubble} />
     </div>

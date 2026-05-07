@@ -8,6 +8,7 @@ import CoachScreen from './screens/Coach.jsx'
 import FeedChicoScreen from './screens/FeedChico.jsx'
 import BudgetScreen from './screens/Budget.jsx'
 import UpdateEarningsScreen from './screens/UpdateEarnings.jsx'
+import InstallGate, { useInstallGate } from './screens/InstallGate.jsx'
 
 const SCREEN_ORDER = ['onboarding', 'slider', 'dreams', 'insights', 'coach', 'feed', 'savings-page', 'dreams-page', 'budget-page', 'income-setup']
 
@@ -59,6 +60,7 @@ function load(key, fallback) {
 }
 
 export default function App() {
+  const { show: showInstall, dismiss: dismissInstall, installPrompt, ios } = useInstallGate()
   const [name, setNameState] = useState(() => load('ct_name', ''))
   const [income, setIncomeState] = useState(() => load('ct_income', 35000))
   const [savingsPct, setSavingsPctState] = useState(() => load('ct_savings_pct', 0.18))
@@ -88,7 +90,22 @@ export default function App() {
   useEffect(() => { localStorage.setItem('ct_theme', JSON.stringify(themeKey)) }, [themeKey])
   useEffect(() => { localStorage.setItem('ct_font', JSON.stringify(fontChoice)) }, [fontChoice])
   useEffect(() => {
-    document.documentElement.style.setProperty('--ct-sans', CT_FONTS[fontChoice]?.stack || CT_FONTS['dm-sans'].stack)
+    const stack = CT_FONTS[fontChoice]?.stack || CT_FONTS['dm-sans'].stack
+    document.documentElement.style.setProperty('--ct-sans', stack)
+
+    // Dynamically load non-default fonts only when selected
+    const urls = {
+      'inter':   'https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap',
+      'poppins': 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
+      'nunito':  'https://fonts.googleapis.com/css2?family=Nunito:wght@300..700&display=swap',
+    }
+    const url = urls[fontChoice]
+    if (url && !document.querySelector(`link[href="${url}"]`)) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      document.head.appendChild(link)
+    }
   }, [fontChoice])
 
   const setName = (n) => setNameState(n)
@@ -244,7 +261,9 @@ export default function App() {
       <div className="notch" />
       <StatusBar palette={palette} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
-        {content}
+        {showInstall
+          ? <InstallGate palette={palette} onContinue={dismissInstall} installPrompt={installPrompt} ios={ios} />
+          : content}
       </div>
     </div>
   )
