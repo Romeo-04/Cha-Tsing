@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/cha-tsing/',
+  base: '/Cha-Tsing/',
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +17,8 @@ export default defineConfig({
         background_color: '#FAEEDA',
         display: 'standalone',
         orientation: 'portrait-primary',
-        scope: '/cha-tsing/',
-        start_url: '/cha-tsing/',
+        scope: '/Cha-Tsing/',
+        start_url: '/Cha-Tsing/',
         icons: [
           { src: 'pwa-64x64.png',               sizes: '64x64',   type: 'image/png' },
           { src: 'pwa-192x192.png',              sizes: '192x192', type: 'image/png' },
