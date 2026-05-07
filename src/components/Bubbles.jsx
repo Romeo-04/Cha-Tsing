@@ -253,7 +253,7 @@ function BubbleChipBody({ bubble, active = false }) {
       width: 52, height: 52, borderRadius: '50%', background: '#fff',
       border: `2.5px solid ${bubble.color}`,
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      boxShadow: active ? `0 6px 18px ${bubble.color}55` : '0 3px 8px rgba(42,31,18,0.12)',
+      boxShadow: 'none',
       userSelect: 'none', position: 'relative',
     }}>
       <div style={{ fontSize: 19, lineHeight: 1 }}>{bubble.emoji}</div>
@@ -278,7 +278,7 @@ function FlashChip({ flash, chicoRect, stageRect }) {
       <div style={{
         padding: '6px 14px', borderRadius: 999,
         background: flash.color, color: '#fff', fontSize: 12, fontWeight: 700,
-        whiteSpace: 'nowrap', boxShadow: `0 8px 20px ${flash.color}66`,
+        whiteSpace: 'nowrap',
       }}>
         +{flash.emoji} {flash.label} · ₱{flash.amount.toLocaleString()}
       </div>
@@ -316,7 +316,7 @@ export function BubbleEditSheet({ palette, bubble, onSave, onCancel }) {
       <div style={{
         position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 201,
         background: p.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
-        padding: '12px 20px 20px', boxShadow: '0 -20px 40px rgba(0,0,0,0.2)',
+        padding: '12px 20px 20px', borderTop: `1px solid ${p.line}`,
         animation: 'sheet-up .28s cubic-bezier(.2,.8,.3,1)',
         maxHeight: '90%', overflow: 'auto',
         fontFamily: CT_TYPE.sans, color: p.ink,

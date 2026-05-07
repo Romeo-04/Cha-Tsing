@@ -53,7 +53,6 @@ export default function FatSlider({ value, onChange, state, p, max = 0.6 }) {
         transform: 'translate(-50%, -50%)',
         width: 32, height: 32, borderRadius: '50%', background: '#fff',
         border: `3px solid ${fillColor}`,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
         transition: dragging ? 'none' : 'border-color .25s',
       }} />
     </div>
