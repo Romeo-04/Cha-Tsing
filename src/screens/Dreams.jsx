@@ -134,7 +134,7 @@ export default function DreamsScreen({
   activeDreamId, onActiveDreamChange,
   dreams, onDreamsChange,
   dreamProgress, onDreamProgressChange,
-  onBack, onNext, className,
+  onBack, onNext, nextLabel = 'See my insights', className,
 }) {
   const [showAdd, setShowAdd] = useState(false)
   const [editingAmount, setEditingAmount] = useState(false)
@@ -372,7 +372,7 @@ export default function DreamsScreen({
       </div>{/* end scrollable */}
 
       <div style={{ padding: '10px 20px 16px', borderTop: `1px solid ${p.line}` }}>
-        <CTButton palette={p} label="See my insights" onClick={onNext} />
+        <CTButton palette={p} label={nextLabel} onClick={onNext} />
       </div>
 
       {showAdd && (

@@ -5,9 +5,17 @@ import CTButton from '../components/ui/CTButton.jsx'
 import Chico, { chicoStateFromSavings } from '../components/Chico.jsx'
 import { BubbleEditSheet } from '../components/Bubbles.jsx'
 
+function getThisMonthSpent(spendingLog) {
+  const now = new Date()
+  return spendingLog
+    .filter(e => { const d = new Date(e.date); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() })
+    .reduce((s, e) => s + e.amount, 0)
+}
+
 export default function CoachScreen({
   palette, income, savingsPct, onSavingsChange,
   allocations, onAddAllocation, onRemoveAllocation,
+  spendingLog = [],
   onBack, className,
 }) {
   const p = palette
@@ -17,6 +25,7 @@ export default function CoachScreen({
   const savingsAmt = Math.round(remaining * savingsPct)
   const truePct = takeHome > 0 ? savingsAmt / takeHome : 0
   const state = chicoStateFromSavings(truePct)
+  const thisMonthSpent = getThisMonthSpent(spendingLog)
 
   const [messages, setMessages] = useState([
     { from: 'chico', text: "Hey, real talk. Want to plan how we hit your goal?" },
@@ -33,17 +42,23 @@ export default function CoachScreen({
 
   const QUICK = [
     { label: "Can I hit ₱100k this year?",
-      reply: takeHome * 12 * 0.18 >= 100000
+      reply: savingsAmt * 12 >= 100000
         ? `At your pace, ₱${(savingsAmt * 12).toLocaleString()}/yr. You're on track. 🍌`
         : `Right now: ₱${(savingsAmt * 12).toLocaleString()}/yr. Need to bump savings ~5% or trim a bubble.` },
     { label: "What should I cut first?",
       reply: allocations.length === 0
         ? "Nothing to cut yet — add some expenses first."
         : `Honestly? '${[...allocations].sort((a, b) => b.amount - a.amount)[0].label}' is your biggest one. Worth a look.` },
-    { label: "I got a raise!",
-      reply: "Niiice. Tap 'Adjust budget' → bump up your savings rate." },
+    { label: "How am I doing this month?",
+      reply: thisMonthSpent === 0
+        ? "No spending logged yet this month. Start logging to get real insights!"
+        : allocTotal === 0
+          ? `You've spent ₱${thisMonthSpent.toLocaleString()} this month. Add your expense budgets so I can compare!`
+          : thisMonthSpent <= allocTotal
+            ? `You've spent ₱${thisMonthSpent.toLocaleString()} vs your ₱${allocTotal.toLocaleString()} budget. Under budget — nice! 🍌`
+            : `You've spent ₱${thisMonthSpent.toLocaleString()} but budgeted ₱${allocTotal.toLocaleString()}. Over by ₱${(thisMonthSpent - allocTotal).toLocaleString()}. Let's fix that.` },
     { label: "Surprise expense came up",
-      reply: "Happens. Tap 'Adjust budget' to add or edit an expense." },
+      reply: "Happens. Log it under 'Spend' on the home screen, then tap 'Adjust budget' here to update your plan." },
   ]
 
   return (

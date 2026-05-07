@@ -10,6 +10,7 @@ export default function SavingsSliderScreen({
   palette, income, savingsPct, onSavingsChange,
   onNext, onBack,
   allocations = [], onAddAllocation, onRemoveAllocation,
+  nextLabel = 'Lock it in',
   className,
 }) {
   const p = palette
@@ -214,7 +215,7 @@ export default function SavingsSliderScreen({
         </div>{/* end scrollable */}
 
         <div style={{ padding: '10px 20px 16px' }}>
-          <CTButton palette={p} label="Lock it in" onClick={onNext} />
+          <CTButton palette={p} label={nextLabel} onClick={onNext} />
         </div>
         </div>{/* end outer wrapper */}
       </BubbleStage>

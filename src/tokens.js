@@ -28,8 +28,22 @@ export const CT_SEMANTIC = {
 
 export const CT_TYPE = {
   serif: '"Instrument Serif", "Times New Roman", Georgia, serif',
-  sans: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  sans: 'var(--ct-sans)',
   mono: 'ui-monospace, "SF Mono", Menlo, monospace',
+}
+
+export const CT_FONTS = {
+  'dm-sans':  { label: 'DM Sans',  stack: '"DM Sans", ui-sans-serif, system-ui, sans-serif' },
+  'inter':    { label: 'Inter',    stack: '"Inter", ui-sans-serif, system-ui, sans-serif' },
+  'poppins':  { label: 'Poppins',  stack: '"Poppins", ui-sans-serif, system-ui, sans-serif' },
+  'nunito':   { label: 'Nunito',   stack: '"Nunito", ui-sans-serif, system-ui, sans-serif' },
+}
+
+export const CT_THEME_META = {
+  cream:    { label: 'Cream',   swatch: '#FAEEDA', dark: false },
+  sage:     { label: 'Sage',    swatch: '#E8EFE5', dark: false },
+  rose:     { label: 'Rose',    swatch: '#F8E5DC', dark: false },
+  midnight: { label: 'Dark',    swatch: '#1C1812', dark: true  },
 }
 
 export function peso(n, opts = {}) {
